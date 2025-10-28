@@ -4,6 +4,8 @@ Ez egy egyszerű, moduláris Phaser 3 alapú űr-ügyességi játék.
 
 100% ChatGPT-vel készült!
 
+Élő (telepített) változat: https://exphoenee.github.io/Hack-Code/
+
 ## Futtatás
 - Nyisd meg az `index.html` fájlt egy böngészőben (ajánlott: Live Server / bármely statikus szerver).
 - Internetkapcsolat szükséges a Phaser CDN betöltéséhez.
