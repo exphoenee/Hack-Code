@@ -64,18 +64,19 @@ export default class UIManager {
     this.rocketText.setVisible(false);
 
     this.overlay = this.scene.add.container(GAME_W / 2, GAME_H / 2).setDepth(20);
-    const box = this.scene.add.rectangle(0, 0, GAME_W * 0.86, 220, 0x000000, 0.55)
+    const box = this.scene.add.rectangle(0, 0, GAME_W * 0.86, 320, 0x000000, 0.55)
       .setStrokeStyle(2, 0x64748b, 0.9);
-    const title = this.scene.add.text(0, -70, 'DODGE!', {
+    const title = this.scene.add.text(0, -110, 'DODGE!', {
       fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Arial',
       fontSize: '48px',
       color: '#e2e8f0'
     }).setOrigin(0.5);
-    this.overlayMsg = this.scene.add.text(0, 0, '', {
+    this.overlayMsg = this.scene.add.text(0, 40, '', {
       fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Arial',
       fontSize: '20px',
       color: '#cbd5e1',
-      align: 'center'
+      align: 'center',
+      wordWrap: { width: GAME_W * 0.8, useAdvancedWrap: true }
     }).setOrigin(0.5);
     this.overlay.add([box, title, this.overlayMsg]);
   }

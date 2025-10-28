@@ -23,7 +23,7 @@ export default class InputManager {
       if (this.pointerUpHandler) this.pointerUpHandler(pointer);
     });
     this.keys.SPACE.on('down', () => {
-      if (this.startHandler) this.startHandler();
+      // Space csak folytatásra használjuk (pause-ból), nem játékindításra
       if (this.resumeHandler) this.resumeHandler();
     });
     this.keys.P.on('down', () => { if (this.pauseHandler) this.pauseHandler(); });

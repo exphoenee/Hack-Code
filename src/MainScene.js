@@ -55,7 +55,10 @@ export default class MainScene extends Phaser.Scene {
 
   preload() {
     this.load.image('hero1', 'assets/hero1.png');
-    this.load.audio('bgm', ['assets/symphony_of_desctruction.mp3']);
+    // Játék alatti zenék (választható)
+    this.load.audio('bgm1', ['assets/symphony_of_desctruction.mp3']);
+    this.load.audio('bgm2', ['assets/boss_fight.mp3']);
+    this.load.audio('bgm3', ['assets/galactic_wrath.mp3']);
     this.load.audio('menu_bgm', ['assets/main_theme.mp3']);
     this.load.audio('gameover_bgm', ['assets/galactic_wrath.mp3']);
     // Enemik képei (PNG)
@@ -81,11 +84,31 @@ export default class MainScene extends Phaser.Scene {
     this.physics.add.overlap(player, this.bonusManager.group, (_p, bonus) => this.collectBonus(bonus), null, this);
     this.physics.add.overlap(this.rockets, this.enemy.group, (rocket, enemy) => this.onRocketHitEnemy(rocket, enemy), null, this);
 
+    // Menü állapot (nehézség + zene)
+    this.menu = {
+      rows: [
+        { name: 'Nehézség', values: ['Könnyű', 'Normál', 'Nehéz'], idx: 1 },
+        { name: 'Zene', values: ['Symphony', 'Boss Fight', 'Galactic Wrath'], keys: ['bgm1','bgm2','bgm3'], idx: 0 },
+        { name: 'Start!', values: ['Indítás'], idx: 0 }
+      ],
+      selected: 0
+    };
+
+    this.currentBgmKey = 'bgm1';
+    // Egér helyett célkereszt
+    this.input.setDefaultCursor('none');
+    this.crosshair = this.add.image(GAME_W/2, GAME_H/2, 'crosshair').setDepth(99);
+    this.input.on('pointermove', (p) => {
+      const x = Phaser.Math.Clamp(p.worldX ?? p.x, 0, GAME_W);
+      const y = Phaser.Math.Clamp(p.worldY ?? p.y, 0, GAME_H);
+      this.crosshair.setPosition(x, y);
+    });
+
     this.uiManager.create(this.state.highScore);
     if (this.uiManager.updateHP) this.updateHPUI();
     if (this.uiManager.updateBeamCharges) this.uiManager.updateBeamCharges(this.state.beamCharges || 0);
     if (this.uiManager.updateRocketCharges) this.uiManager.updateRocketCharges(this.state.rocketCharges || 0, this.state.beamCharges || 0);
-    this.uiManager.showStartScreen();
+    this.renderMainMenu();
 
     // Menü zene: indításkor halkan, finom fade‑in
     if (!this.menuMusic) {
@@ -95,11 +118,11 @@ export default class MainScene extends Phaser.Scene {
     }
 
     this.inputManager.init();
-    this.inputManager.registerStartHandler(() => { if (!this.state.isPlaying) this.startGame(); });
+    // Space nem indítja a játékot; START a menüben Enterrel
     this.inputManager.registerPauseHandler(() => { if (this.state.isPlaying) this.pauseGame(); });
     this.inputManager.registerResumeHandler(() => { if (this.state.isPlaying && this.physics.world.isPaused) this.resumeGame(); });
     this.inputManager.registerPointerHandler((pointer) => {
-      if (!this.state.isPlaying) { this.startGame(); return; }
+      if (!this.state.isPlaying) { return; }
       if (this.physics.world.isPaused) return;
       // Ha van erősített lövés töltet és nem aktív még a tartott sugár, indítsuk el
       if (this.state.rocketCharges > 0) {
@@ -113,6 +136,14 @@ export default class MainScene extends Phaser.Scene {
     this.inputManager.registerPointerUpHandler(() => {
       if (this.holdBeamActive) this.stopHoldBeam();
     });
+
+    // Menü navigáció: ↑/↓ sorváltás, ←/→ értékváltás (csak ha nem játék folyik)
+    const kb = this.input.keyboard;
+    kb.on('keydown-UP', () => { if (!this.state.isPlaying) { this.menu.selected = (this.menu.selected + this.menu.rows.length - 1) % this.menu.rows.length; this.renderMainMenu(); } });
+    kb.on('keydown-DOWN', () => { if (!this.state.isPlaying) { this.menu.selected = (this.menu.selected + 1) % this.menu.rows.length; this.renderMainMenu(); } });
+    kb.on('keydown-LEFT', () => { if (!this.state.isPlaying && this.menu.selected < this.menu.rows.length - 1) { const row = this.menu.rows[this.menu.selected]; row.idx = (row.idx + row.values.length - 1) % row.values.length; this.applyMenuSideEffects(); this.renderMainMenu(); } });
+    kb.on('keydown-RIGHT', () => { if (!this.state.isPlaying && this.menu.selected < this.menu.rows.length - 1) { const row = this.menu.rows[this.menu.selected]; row.idx = (row.idx + 1) % row.values.length; this.applyMenuSideEffects(); this.renderMainMenu(); } });
+    kb.on('keydown-ENTER', () => { if (!this.state.isPlaying && this.menu.selected === this.menu.rows.length - 1) { this.startGame(); } });
 
     // Pause, ha az ablak fókuszt veszít vagy a tab elrejtődik
     const onBlur = () => { if (this.state.isPlaying) this.pauseGame(); };
@@ -134,7 +165,10 @@ export default class MainScene extends Phaser.Scene {
     this.uiManager.hideOverlay();
     this.state.isPlaying = true;
     this.state.score = 0;
-    this.state.difficulty = 1;
+    // Alap nehézség a menüből
+    const diffIdx = this.menu?.rows?.[0]?.idx ?? 1;
+    const diffStart = [0.8, 1.0, 1.3][diffIdx] || 1.0;
+    this.state.difficulty = diffStart;
     this.state.maxHits = 3;
     this.state.hits = this.state.maxHits;
     this.state.beamCharges = 0;
@@ -157,13 +191,24 @@ export default class MainScene extends Phaser.Scene {
     if (this.gameOverMusic) {
       this.fadeSoundTo(this.gameOverMusic, 0, 200, () => this.gameOverMusic && this.gameOverMusic.stop());
     }
-    // Zene: játék közben szóljon, finom fade-in
+    // Zene: kiválasztott játékzene, finom fade-in
+    const musicIdx = this.menu?.rows?.[1]?.idx ?? 0;
+    this.currentBgmKey = (this.menu?.rows?.[1]?.keys?.[musicIdx]) || 'bgm1';
     if (!this.music) {
-      this.music = this.sound.add('bgm', { loop: true, volume: 0 });
+      this.music = this.sound.add(this.currentBgmKey, { loop: true, volume: 0 });
       this.music.play();
     } else {
-      if (this.music.isPaused) this.music.resume();
-      else if (!this.music.isPlaying) this.music.play();
+      // Ha másik zenét választott a menüben, cseréljük le a Sound instance‑t
+      if (this.music.key !== this.currentBgmKey) {
+        try { this.music.stop(); } catch {}
+        this.music.destroy();
+        this.music = this.sound.add(this.currentBgmKey, { loop: true, volume: 0 });
+        this.music.play();
+      } else if (this.music.isPaused) {
+        this.music.resume();
+      } else if (!this.music.isPlaying) {
+        this.music.play();
+      }
     }
     this.fadeSoundTo(this.music, this.musicBaseVolume, 600);
     this.startTimers();
@@ -181,6 +226,7 @@ export default class MainScene extends Phaser.Scene {
     this.time.paused = true;
     this.uiManager.showPauseScreen();
     this.starfield.stop();
+    // célkereszt maradhat látható; pozíció frissítés pointermove-re történik
     // Aktív tartott sugár leállítása és vizuálok törlése
     if (this.holdBeamActive) this.stopHoldBeam();
     for (const b of this.beams) { b.ttl = 0; }
@@ -442,6 +488,31 @@ export default class MainScene extends Phaser.Scene {
     if (this.enemy) this.enemy.update(this.time?.now || performance.now(), this.game.loop.delta || 16);
     const axis = this.inputManager.getAxis();
     this.playerController.update(axis);
+  }
+
+  renderMainMenu() {
+    if (!this.uiManager) return;
+    const a = (i) => (i === this.menu.selected ? '>' : ' ');
+    const diffRow = this.menu.rows[0];
+    const musicRow = this.menu.rows[1];
+    const body = [
+      'Lődd le az ellenséges űrhajókat!',
+      'Mozgás: A/D vagy Bal/Jobb nyíl',
+      'Lövés: kattintás',
+      '',
+      `${a(0)} Nehézség: <${diffRow.values[diffRow.idx]}>`,
+      `${a(1)} Zene: <${musicRow.values[musicRow.idx]}>`,
+      '',
+      `${a(2)} Start!`,
+      '',
+      'Menü: ↑/↓ – sor,  ←/→ – váltás, Enter – Start',
+    ].join('\n');
+    this.uiManager.setOverlayMessage(body);
+    this.uiManager.overlay.setVisible(true);
+  }
+
+  applyMenuSideEffects() {
+    // Jelenleg csak azonnali elő-nézetet nem igénylünk; a kiválasztott zene a startnál érvényesül
   }
 
   startHoldBeam() {

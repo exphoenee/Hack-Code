@@ -10,6 +10,7 @@ export default class TextureFactory {
     this.createPowerTexture();
     this.createRocketPickupTexture();
     this.createRocketBulletTexture();
+    this.createCrosshairTexture();
     this.createParticleTexture();
   }
 
@@ -86,6 +87,22 @@ export default class TextureFactory {
     g.lineStyle(1, 0xf59e0b, 1);
     g.strokeRoundedRect(0, 0, 6, 14, 2);
     g.generateTexture('rocketBullet', 6, 14);
+    g.destroy();
+  }
+
+  createCrosshairTexture() {
+    if (this.scene.textures && this.scene.textures.exists('crosshair')) return;
+    const size = 24;
+    const g = this.scene.add.graphics();
+    g.lineStyle(2, 0x93c5fd, 1);
+    // kör
+    g.strokeCircle(size/2, size/2, 8);
+    // kereszt
+    g.beginPath();
+    g.moveTo(size/2, 2); g.lineTo(size/2, size-2);
+    g.moveTo(2, size/2); g.lineTo(size-2, size/2);
+    g.strokePath();
+    g.generateTexture('crosshair', size, size);
     g.destroy();
   }
 }
