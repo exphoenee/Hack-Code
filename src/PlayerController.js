@@ -7,6 +7,7 @@ export default class PlayerController {
     this.BASE_ANGLE = 180; // állítsd, ha nem felfelé néz az asset
     this.TARGET_W = 48;    // megjelenített szélesség px-ben
     this.COLLIDER_RATIO = 0.35; // kör hitbox arány
+    this.speed = 260; // vízszintes sebesség
   }
 
   create() {
@@ -45,8 +46,25 @@ export default class PlayerController {
 
   update(axis) {
     if (!this.sprite) return;
-    const speed = 260;
+    const speed = this.speed || 260;
     this.sprite.setVelocityX(axis * speed);
     // Nem döntjük meg a sprite-ot, a tájolás rögzített
+  }
+
+  applyShipConfig() {
+    if (!this.sprite) return;
+    // Skálázás fix szélességre
+    if (this.sprite.width > 0) {
+      const scale = this.TARGET_W / this.sprite.width;
+      this.sprite.setScale(scale);
+    }
+    this.sprite.setAngle(this.BASE_ANGLE);
+    // Kör alakú hitbox a textúra mérete alapján, középre igazítva
+    const texW = this.sprite.width;
+    const texH = this.sprite.height;
+    const r = Math.max(8, Math.floor(Math.min(texW, texH) * this.COLLIDER_RATIO));
+    if (this.sprite.setCircle) {
+      this.sprite.setCircle(r, (texW / 2) - r, (texH / 2) - r);
+    }
   }
 }

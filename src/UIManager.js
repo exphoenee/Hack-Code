@@ -64,9 +64,9 @@ export default class UIManager {
     this.rocketText.setVisible(false);
 
     this.overlay = this.scene.add.container(GAME_W / 2, GAME_H / 2).setDepth(20);
-    const box = this.scene.add.rectangle(0, 0, GAME_W * 0.86, 320, 0x000000, 0.55)
+    const box = this.scene.add.rectangle(0, 0, GAME_W * 0.86, 360, 0x000000, 0.55)
       .setStrokeStyle(2, 0x64748b, 0.9);
-    const title = this.scene.add.text(0, -110, 'DODGE!', {
+    const title = this.scene.add.text(0, -140, 'DODGE!', {
       fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Arial',
       fontSize: '48px',
       color: '#e2e8f0'

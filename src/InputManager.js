@@ -8,6 +8,7 @@ export default class InputManager {
     this.startHandler = null;
     this.pauseHandler = null;
     this.resumeHandler = null;
+    this.escHandler = null;
     this.pointerHandler = null;
     this.pointerUpHandler = null;
   }
@@ -27,12 +28,15 @@ export default class InputManager {
       if (this.resumeHandler) this.resumeHandler();
     });
     this.keys.P.on('down', () => { if (this.pauseHandler) this.pauseHandler(); });
-    if (this.keys.ESC) this.keys.ESC.on('down', () => { if (this.resumeHandler) this.resumeHandler(); });
+    if (this.keys.ESC) this.keys.ESC.on('down', () => {
+      if (this.escHandler) this.escHandler();
+    });
   }
 
   registerStartHandler(fn) { this.startHandler = fn; }
   registerPauseHandler(fn) { this.pauseHandler = fn; }
   registerResumeHandler(fn) { this.resumeHandler = fn; }
+  registerEscHandler(fn) { this.escHandler = fn; }
   registerPointerHandler(fn) { this.pointerHandler = fn; }
   registerPointerUpHandler(fn) { this.pointerUpHandler = fn; }
 

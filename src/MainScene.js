@@ -51,10 +51,29 @@ export default class MainScene extends Phaser.Scene {
     this.bonusManager = new BonusManager(this);
     this.uiManager = new UIManager(this);
     this.starfield = new Starfield(this);
+    // Nehézségi szintek leírói
+    /*
+      Mezők jelentése:
+      - enemySpawnMs: ellenségek megjelenésének periódusa milliszekundumban (kisebb = sűrűbb/hardabb)
+      - bonusSpawnMs: bónusz/powerup megjelenésének periódusa milliszekundumban
+      - invulnMs: ütközés után ennyi ideig sebezhetetlen a játékos (ms)
+      - playerDamageMul: a játékosra eső sebzés szorzója (1.0 = alap, >1.0 = több sebzés)
+      - laserBase: az egyszeri kattintásos lézer alap sebzése középen találatnál
+      - holdBeamBase: a tartott sugár (beam) tickenkénti alap sebzése középen
+      - scoreTick: ennyi pontot ad a 200 ms‑enként futó pontozó időzítő
+    */
+    this.difficultyDefs = [
+      { name: 'Könnyű', enemySpawnMs: 900, bonusSpawnMs: 3200, invulnMs: 900, playerDamageMul: 1.0, laserBase: 0.8, holdBeamBase: 0.5, scoreTick: 8 },
+      { name: 'Normál', enemySpawnMs: 700, bonusSpawnMs: 3500, invulnMs: 800, playerDamageMul: 1.0, laserBase: 0.7, holdBeamBase: 0.45, scoreTick: 10 },
+      { name: 'Nehéz', enemySpawnMs: 550, bonusSpawnMs: 4200, invulnMs: 700, playerDamageMul: 1.5, laserBase: 0.6, holdBeamBase: 0.4, scoreTick: 12 }
+    ];
+    this.difficultyCfg = this.difficultyDefs[1];
+    this.playerDamageTakenMul = 1.0;
   }
 
   preload() {
     this.load.image('hero1', 'assets/hero1.png');
+    this.load.image('hero2', 'assets/hero2.png');
     // Játék alatti zenék (választható)
     this.load.audio('bgm1', ['assets/symphony_of_desctruction.mp3']);
     this.load.audio('bgm2', ['assets/boss_fight.mp3']);
@@ -76,6 +95,9 @@ export default class MainScene extends Phaser.Scene {
     this.textureFactory.createAll();
     this.starfield.create();
 
+    // Alap hajó (Warrior) az induló menünek megfelelően
+    this.playerController.TARGET_W = 48;
+    this.playerController.speed = 260;
     const player = this.playerController.create();
     this.enemy.createGroup();
     this.bonusManager.createGroup();
@@ -89,6 +111,7 @@ export default class MainScene extends Phaser.Scene {
       rows: [
         { name: 'Nehézség', values: ['Könnyű', 'Normál', 'Nehéz'], idx: 1 },
         { name: 'Zene', values: ['Symphony', 'Boss Fight', 'Galactic Wrath'], keys: ['bgm1','bgm2','bgm3'], idx: 0 },
+        { name: 'Űrhajó', values: ['Warrior', 'Fighter'], idx: 0 },
         { name: 'Start!', values: ['Indítás'], idx: 0 }
       ],
       selected: 0
@@ -109,6 +132,10 @@ export default class MainScene extends Phaser.Scene {
     if (this.uiManager.updateBeamCharges) this.uiManager.updateBeamCharges(this.state.beamCharges || 0);
     if (this.uiManager.updateRocketCharges) this.uiManager.updateRocketCharges(this.state.rocketCharges || 0, this.state.beamCharges || 0);
     this.renderMainMenu();
+    this.createShipPreviews?.();
+    this.updateShipPreviews?.();
+    this.createShipPreviews();
+    this.updateShipPreviews();
 
     // Menü zene: indításkor halkan, finom fade‑in
     if (!this.menuMusic) {
@@ -120,7 +147,22 @@ export default class MainScene extends Phaser.Scene {
     this.inputManager.init();
     // Space nem indítja a játékot; START a menüben Enterrel
     this.inputManager.registerPauseHandler(() => { if (this.state.isPlaying) this.pauseGame(); });
-    this.inputManager.registerResumeHandler(() => { if (this.state.isPlaying && this.physics.world.isPaused) this.resumeGame(); });
+    this.inputManager.registerResumeHandler(() => {
+      if (this.state.isPlaying && this.physics.world.isPaused) {
+        this.resumeGame();
+      } else if (!this.state.isPlaying) {
+        this.returnToMenu();
+      }
+    });
+    this.inputManager.registerEscHandler(() => {
+      if (this.state.isPlaying && !this.physics.world.isPaused) {
+        this.pauseGame();
+      } else if (this.state.isPlaying && this.physics.world.isPaused) {
+        this.resumeGame();
+      } else if (!this.state.isPlaying) {
+        this.returnToMenu();
+      }
+    });
     this.inputManager.registerPointerHandler((pointer) => {
       if (!this.state.isPlaying) { return; }
       if (this.physics.world.isPaused) return;
@@ -167,9 +209,27 @@ export default class MainScene extends Phaser.Scene {
     this.state.score = 0;
     // Alap nehézség a menüből
     const diffIdx = this.menu?.rows?.[0]?.idx ?? 1;
-    const diffStart = [0.8, 1.0, 1.3][diffIdx] || 1.0;
-    this.state.difficulty = diffStart;
-    this.state.maxHits = 3;
+    const cfg = this.difficultyDefs[diffIdx] || this.difficultyDefs[1];
+    this.difficultyCfg = cfg;
+    this.state.difficulty = [0.8, 1.0, 1.3][diffIdx] || 1.0;
+    this.invulnDurationMs = cfg.invulnMs;
+    this.playerDamageTakenMul = cfg.playerDamageMul;
+    this.laserBaseDamage = cfg.laserBase;
+    this.holdBeamBaseTickDamage = cfg.holdBeamBase;
+    // Hajó típus a menüből
+    const shipIdx = this.menu?.rows?.[2]?.idx ?? 0; // 0 Warrior, 1 Fighter
+    if (shipIdx === 0) { // Warrior
+      this.playerController.TARGET_W = 48;
+      this.playerController.speed = 260;
+      this.state.maxHits = 3;
+      if (this.playerController.sprite) this.playerController.sprite.setTexture('hero1');
+    } else { // Fighter
+      this.playerController.TARGET_W = 38;
+      this.playerController.speed = 320;
+      this.state.maxHits = 2;
+      if (this.playerController.sprite) this.playerController.sprite.setTexture('hero2');
+    }
+    this.playerController.applyShipConfig();
     this.state.hits = this.state.maxHits;
     this.state.beamCharges = 0;
     this.state.rocketCharges = 0;
@@ -226,6 +286,8 @@ export default class MainScene extends Phaser.Scene {
     this.time.paused = true;
     this.uiManager.showPauseScreen();
     this.starfield.stop();
+    // Hajó előnézetek ne látszódjanak a Pause menüben
+    this.hideShipPreviews?.();
     // célkereszt maradhat látható; pozíció frissítés pointermove-re történik
     // Aktív tartott sugár leállítása és vizuálok törlése
     if (this.holdBeamActive) this.stopHoldBeam();
@@ -270,6 +332,8 @@ export default class MainScene extends Phaser.Scene {
     this.time.paused = true;
     this.physics.pause();
     this.starfield.stop();
+    // Rejtsük el a hajó előnézeteket a Game Over képernyőn
+    this.hideShipPreviews?.();
     if (this.music) {
       this.fadeSoundTo(this.music, 0, 400, () => this.music && this.music.stop());
     }
@@ -290,6 +354,39 @@ export default class MainScene extends Phaser.Scene {
       this.gameOverMusic.play();
     }
     this.fadeSoundTo(this.gameOverMusic, this.gameOverMusicBaseVolume, 500);
+  }
+
+  returnToMenu() {
+    // Teljes visszatérés a főmenübe, új játék indításáig
+    this.timerManager.clearAll();
+    this.time.paused = true;
+    this.physics.pause();
+    this.starfield.stop();
+    this.state.isPlaying = false;
+    // Állítsuk le a game over zenét is, ha még szól
+    if (this.gameOverMusic) {
+      const gom = this.gameOverMusic;
+      if (gom.isPlaying || gom.volume > 0) {
+        this.fadeSoundTo(gom, 0, 200, () => { try { gom.stop(); } catch {} });
+      }
+    }
+    // Jelenítsük meg a főmenü overlayt
+    this.renderMainMenu();
+    // Mutassuk a hajó előnézeteket
+    this.showShipPreviews?.();
+    // Zene: menüzene fel, játékzene le
+    if (this.music && this.music.isPlaying) {
+      this.fadeSoundTo(this.music, 0, 250, () => this.music && this.music.pause());
+    }
+    if (!this.menuMusic) {
+      this.menuMusic = this.sound.add('menu_bgm', { loop: true, volume: 0 });
+      this.menuMusic.play();
+    } else if (this.menuMusic.isPaused) {
+      this.menuMusic.resume();
+    } else if (!this.menuMusic.isPlaying) {
+      this.menuMusic.play();
+    }
+    this.fadeSoundTo(this.menuMusic, this.menuMusicBaseVolume, 300);
   }
 
   collectBonus(bonus) {
@@ -380,6 +477,12 @@ export default class MainScene extends Phaser.Scene {
       this.tweens.add({ targets: boom, alpha: 0, scale: 2, duration: 220, onComplete: () => boom.destroy() });
       enemy.disableBody(true, true);
       this.updateScore(this.state.score + pts);
+      const pfx = this.add.text(enemy.x, enemy.y, `+${pts}`, {
+        fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Arial',
+        fontSize: '20px',
+        color: '#22c55e'
+      }).setDepth(61).setOrigin(0.5);
+      this.tweens.add({ targets: pfx, y: pfx.y - 30, alpha: 0, duration: 600, onComplete: () => pfx.destroy() });
     }
     if (rocket && rocket.active) rocket.destroy();
   }
@@ -435,6 +538,13 @@ export default class MainScene extends Phaser.Scene {
       // Pontozás: ellenség kilövése – pont a leíró szerint
       const pts = target.getData('points') ?? 50;
       this.updateScore(this.state.score + pts);
+      // Pont felirat az ellenség felett
+      const pfx = this.add.text(target.x, target.y, `+${pts}` , {
+        fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Arial',
+        fontSize: '20px',
+        color: '#22c55e'
+      }).setDepth(61).setOrigin(0.5);
+      this.tweens.add({ targets: pfx, y: pfx.y - 30, alpha: 0, duration: 600, onComplete: () => pfx.destroy() });
     }
 
     // Nyilvántartjuk a sugár vizuált, hogy követhesse a player és a célpont mozgását pár száz ms-ig
@@ -444,13 +554,16 @@ export default class MainScene extends Phaser.Scene {
 
   startTimers() {
     this.timerManager.clearAll();
+    const scoreTick = this.difficultyCfg?.scoreTick ?? 10;
     this.timerManager.addLoop(200, () => {
       if (!this.state.isPlaying) return;
-      this.updateScore(this.state.score + 10);
+      this.updateScore(this.state.score + scoreTick);
       this.state.difficulty += 0.02;
     });
-    this.timerManager.addLoop(700, () => { if (this.state.isPlaying) this.enemy.spawn(this.state.difficulty); });
-    this.timerManager.addLoop(3500, () => { if (this.state.isPlaying) this.bonusManager.spawn(this.state.difficulty); });
+    const enemyMs = this.difficultyCfg?.enemySpawnMs ?? 700;
+    const bonusMs = this.difficultyCfg?.bonusSpawnMs ?? 3500;
+    this.timerManager.addLoop(enemyMs, () => { if (this.state.isPlaying) this.enemy.spawn(this.state.difficulty); });
+    this.timerManager.addLoop(bonusMs, () => { if (this.state.isPlaying) this.bonusManager.spawn(this.state.difficulty); });
     this.timerManager.addLoop(1500, () => { this.enemy.cleanupOffscreen(); this.bonusManager.cleanupOffscreen(); });
   }
 
@@ -495,6 +608,7 @@ export default class MainScene extends Phaser.Scene {
     const a = (i) => (i === this.menu.selected ? '>' : ' ');
     const diffRow = this.menu.rows[0];
     const musicRow = this.menu.rows[1];
+    const shipRow = this.menu.rows[2];
     const body = [
       'Lődd le az ellenséges űrhajókat!',
       'Mozgás: A/D vagy Bal/Jobb nyíl',
@@ -502,8 +616,9 @@ export default class MainScene extends Phaser.Scene {
       '',
       `${a(0)} Nehézség: <${diffRow.values[diffRow.idx]}>`,
       `${a(1)} Zene: <${musicRow.values[musicRow.idx]}>`,
+      `${a(2)} Űrhajó: <${shipRow.values[shipRow.idx]}>`,
       '',
-      `${a(2)} Start!`,
+      `${a(3)} Start!`,
       '',
       'Menü: ↑/↓ – sor,  ←/→ – váltás, Enter – Start',
     ].join('\n');
@@ -513,6 +628,69 @@ export default class MainScene extends Phaser.Scene {
 
   applyMenuSideEffects() {
     // Jelenleg csak azonnali elő-nézetet nem igénylünk; a kiválasztott zene a startnál érvényesül
+  }
+
+  createShipPreviews() {
+    if (this.shipPrev1 || !this.uiManager?.overlay) return;
+    // Előnézetek: a doboz széleitől ~20px-re, az "Űrhajó" sor felett
+    const boxW = GAME_W * 0.86;
+    const displayW = 54; // ~1.5x nagyobb előnézet
+    const margin = 20;
+    const dx = Math.floor(boxW / 2 - margin - displayW / 2);
+    const y = 30; // 30px-el lejjebb
+    this.shipPrev1 = this.add.image(-dx, y, 'hero1').setOrigin(0.5).setDepth(21);
+    this.shipPrev2 = this.add.image( dx, y, 'hero2').setOrigin(0.5).setDepth(21);
+    const s1 = displayW / (this.shipPrev1.width || displayW);
+    const s2 = displayW / (this.shipPrev2.width || displayW);
+    this.shipPrev1.setScale(s1);
+    this.shipPrev2.setScale(s2);
+    // Fordítsuk el 180 fokkal
+    this.shipPrev1.setAngle(180);
+    this.shipPrev2.setAngle(180);
+    this.shipPrevBaseScale1 = s1;
+    this.shipPrevBaseScale2 = s2;
+    this.uiManager.overlay.add([this.shipPrev1, this.shipPrev2]);
+    // Címkék lejjebb
+    this.shipLbl1 = this.add.text(-dx, y + 36, 'Warrior', { fontSize: '14px', color: '#cbd5e1', fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Arial' }).setOrigin(0.5).setDepth(21);
+    this.shipLbl2 = this.add.text( dx, y + 36, 'Fighter', { fontSize: '14px', color: '#cbd5e1', fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Arial' }).setOrigin(0.5).setDepth(21);
+    this.uiManager.overlay.add([this.shipLbl1, this.shipLbl2]);
+    // Biztosan a doboz és a szöveg fölött legyenek
+    if (this.uiManager.overlay.bringToTop) {
+      this.uiManager.overlay.bringToTop(this.shipPrev1);
+      this.uiManager.overlay.bringToTop(this.shipPrev2);
+      this.uiManager.overlay.bringToTop(this.shipLbl1);
+      this.uiManager.overlay.bringToTop(this.shipLbl2);
+    }
+  }
+
+  updateShipPreviews() {
+    if (!this.shipPrev1 || !this.shipPrev2) return;
+    const shipIdx = this.menu?.rows?.[2]?.idx ?? 0;
+    // Ne halványítsuk a nem kiválasztott hajót – egységes fényerő
+    this.shipPrev1.setAlpha(1.0);
+    this.shipPrev2.setAlpha(1.0);
+    // Enyhe méretkiemelés és szín a kijelöléshez (nem halmozódó)
+    const baseScale1 = this.shipPrevBaseScale1 || this.shipPrev1.scale;
+    const baseScale2 = this.shipPrevBaseScale2 || this.shipPrev2.scale;
+    this.shipPrev1.setScale(shipIdx === 0 ? baseScale1 * 1.1 : baseScale1);
+    this.shipPrev2.setScale(shipIdx === 1 ? baseScale2 * 1.1 : baseScale2);
+    if (this.shipLbl1) this.shipLbl1.setColor(shipIdx === 0 ? '#e2e8f0' : '#94a3b8');
+    if (this.shipLbl2) this.shipLbl2.setColor(shipIdx === 1 ? '#e2e8f0' : '#94a3b8');
+  }
+
+  hideShipPreviews() {
+    if (this.shipPrev1) this.shipPrev1.setVisible(false);
+    if (this.shipPrev2) this.shipPrev2.setVisible(false);
+    if (this.shipLbl1) this.shipLbl1.setVisible(false);
+    if (this.shipLbl2) this.shipLbl2.setVisible(false);
+  }
+
+  showShipPreviews() {
+    if (this.shipPrev1) this.shipPrev1.setVisible(true);
+    if (this.shipPrev2) this.shipPrev2.setVisible(true);
+    if (this.shipLbl1) this.shipLbl1.setVisible(true);
+    if (this.shipLbl2) this.shipLbl2.setVisible(true);
+    this.updateShipPreviews();
   }
 
   startHoldBeam() {
@@ -599,6 +777,12 @@ export default class MainScene extends Phaser.Scene {
               target.disableBody(true, true);
               const pts = target.getData('points') ?? 50;
               this.updateScore(this.state.score + pts);
+              const pfx = this.add.text(target.x, target.y, `+${pts}`, {
+                fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Arial',
+                fontSize: '20px',
+                color: '#22c55e'
+              }).setDepth(61).setOrigin(0.5);
+              this.tweens.add({ targets: pfx, y: pfx.y - 30, alpha: 0, duration: 600, onComplete: () => pfx.destroy() });
             }
           }
         }
@@ -617,7 +801,8 @@ export default class MainScene extends Phaser.Scene {
     this.invulnerableUntil = now + this.invulnDurationMs;
 
     // Player sebződik
-    const dmgHits = (enemy && enemy.getData) ? (enemy.getData('playerDamage') ?? 1) : 1;
+    let dmgHits = (enemy && enemy.getData) ? (enemy.getData('playerDamage') ?? 1) : 1;
+    dmgHits = Math.max(1, Math.round(dmgHits * (this.playerDamageTakenMul || 1)));
     this.state.hits = Math.max(0, this.state.hits - dmgHits);
     if (this.uiManager.updateHP) this.updateHPUI();
     if (this.playerController.sprite) {
@@ -639,6 +824,12 @@ export default class MainScene extends Phaser.Scene {
         enemy.disableBody(true, true);
         const pts = enemy.getData('points') ?? 50;
         this.updateScore(this.state.score + pts);
+        const pfx = this.add.text(enemy.x, enemy.y, `+${pts}`, {
+          fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Arial',
+          fontSize: '20px',
+          color: '#22c55e'
+        }).setDepth(61).setOrigin(0.5);
+        this.tweens.add({ targets: pfx, y: pfx.y - 30, alpha: 0, duration: 600, onComplete: () => pfx.destroy() });
       } else {
         // egy ütközés után is vegyük le, hogy ne okozzon azonnal többszörös sebzést
         enemy.disableBody(true, true);
