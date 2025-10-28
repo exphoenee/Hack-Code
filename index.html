@@ -1,0 +1,322 @@
+<!-- /public/index.html -->
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Dodge! – Phaser 3</title>
+  <style>
+    html, body { height: 100%; background:#0f172a; margin: 0; }
+    #game { width: 100%; height: 100%; }
+    /* Minimal dark theme, no external fonts for reliability */
+  </style>
+  <!-- Pinned, stabil Phaser 3 (3.55.2) -->
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+</head>
+<body>
+  <div id="game"></div>
+
+  <script>
+    // --- Konstansok ---
+    const GAME_W = 480;
+    const GAME_H = 800;
+    const HS_KEY = 'dodge_highscore_v1';
+
+    // --- Hasznos: high score tárolás ---
+    function loadHighScore() {
+      try { return Number(localStorage.getItem(HS_KEY)) || 0; } catch { return 0; }
+    }
+    function saveHighScore(v) {
+      try { localStorage.setItem(HS_KEY, String(v)); } catch {}
+    }
+
+    // --- Fő jelenet ---
+    class MainScene extends Phaser.Scene {
+      constructor() {
+        super('Main');
+        this.isPlaying = false;
+        this.score = 0;
+        this.highScore = 0;
+        this.difficulty = 1;
+        this.player = null;
+        this.cursors = null;
+        this.leftDown = false;
+        this.rightDown = false;
+        this.groups = {};
+        this.timers = [];
+        this.ui = {};
+      }
+
+      // Egyszerű textúra-generátorok (nincs külső asset) – "miért": offline futás, gyors betöltés
+      createGeneratedTextures() {
+        // Játékos – háromszög (űrhajó)
+        const g1 = this.add.graphics();
+        g1.fillStyle(0x7dd3fc, 1);
+        g1.lineStyle(4, 0x0ea5e9, 1);
+        g1.beginPath();
+        g1.moveTo(0, 28); g1.lineTo(20, -28); g1.lineTo(-20, -28); g1.closePath();
+        g1.fillPath(); g1.strokePath();
+        g1.generateTexture('playerTri', 48, 64);
+        g1.destroy();
+
+        // Akadály – téglalap
+        const g2 = this.add.graphics();
+        g2.fillStyle(0xf87171, 1);
+        g2.fillRoundedRect(0, 0, 40, 40, 6);
+        g2.generateTexture('obstacle', 40, 40);
+        g2.destroy();
+
+        // Bónusz – rombusz
+        const g3 = this.add.graphics();
+        g3.fillStyle(0xa7f3d0, 1);
+        g3.lineStyle(3, 0x10b981, 1);
+        g3.beginPath();
+        g3.moveTo(16, 0); g3.lineTo(32, 16); g3.lineTo(16, 32); g3.lineTo(0, 16); g3.closePath();
+        g3.fillPath(); g3.strokePath();
+        g3.generateTexture('bonus', 32, 32);
+        g3.destroy();
+
+        // Részecske – kis kör
+        const g4 = this.add.graphics();
+        g4.fillStyle(0xffffff, 1);
+        g4.fillCircle(3, 3, 3);
+        g4.generateTexture('dot', 6, 6);
+        g4.destroy();
+      }
+
+      create() {
+        this.highScore = loadHighScore();
+        this.createGeneratedTextures();
+
+        // Csillagos háttér
+        const particles = this.add.particles('dot');
+        this.starEmitter = particles.createEmitter({
+          x: {min: 0, max: GAME_W},
+          y: -10,
+          lifespan: 4000,
+          speedY: {min: 50, max: 120},
+          scale: {start: 0.5, end: 0.1},
+          quantity: 3,
+          blendMode: 'ADD'
+        });
+
+        // Játékos
+        this.player = this.physics.add.image(GAME_W / 2, GAME_H - 80, 'playerTri')
+          .setCircle(18, 6, 10) // kicsit megengedő hitbox
+          .setCollideWorldBounds(true);
+
+        // Csoportok
+        this.groups.obstacles = this.physics.add.group({ immovable: true });
+        this.groups.bonuses = this.physics.add.group();
+
+        // Ütközések
+        this.physics.add.collider(this.player, this.groups.obstacles, () => this.gameOver(), null, this);
+        this.physics.add.overlap(this.player, this.groups.bonuses, (_p, bonus) => this.collectBonus(bonus), null, this);
+
+        // Irányítás
+        this.cursors = this.input.keyboard.createCursorKeys();
+        this.keys = this.input.keyboard.addKeys('A,D,SPACE,P');
+
+        // Érintés: képernyő felei mint gombok
+        const leftZone = this.add.zone(0, 0, GAME_W/2, GAME_H).setOrigin(0,0).setInteractive();
+        const rightZone = this.add.zone(GAME_W/2, 0, GAME_W/2, GAME_H).setOrigin(0,0).setInteractive();
+        leftZone.on('pointerdown', ()=>{ this.leftDown = true; });
+        leftZone.on('pointerup', ()=>{ this.leftDown = false; });
+        leftZone.on('pointerout', ()=>{ this.leftDown = false; });
+        rightZone.on('pointerdown', ()=>{ this.rightDown = true; });
+        rightZone.on('pointerup', ()=>{ this.rightDown = false; });
+        rightZone.on('pointerout', ()=>{ this.rightDown = false; });
+
+        // UI
+        this.ui.scoreText = this.add.text(16, 12, 'Pont: 0', { fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Arial', fontSize: '22px', color: '#e2e8f0' }).setDepth(10);
+        this.ui.highText  = this.add.text(GAME_W - 16, 12, `Rekord: ${this.highScore}`, { fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Arial', fontSize: '22px', color: '#94a3b8' }).setOrigin(1,0).setDepth(10);
+
+        // Overlays
+        this.ui.overlay = this.add.container(GAME_W/2, GAME_H/2).setDepth(20);
+        const box = this.add.rectangle(0, 0, GAME_W * 0.86, 220, 0x000000, 0.55).setStrokeStyle(2, 0x64748b, 0.9);
+        const title = this.add.text(0, -70, 'DODGE!', { fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Arial', fontSize: '48px', color: '#e2e8f0' }).setOrigin(0.5);
+        this.ui.overlayMsg = this.add.text(0, 0,
+          'Kerüld az akadályokat!\nNyilak / A–D vagy érintés.\nKezdés: Space vagy Kattintás',
+          { fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Arial', fontSize: '20px', color: '#cbd5e1', align: 'center' }
+        ).setOrigin(0.5);
+        this.ui.overlay.add([box, title, this.ui.overlayMsg]);
+
+        // Eseménykezelők
+        this.input.on('pointerdown', () => { if (!this.isPlaying) this.startGame(); });
+        this.keys.SPACE.on('down', () => { if (!this.isPlaying) this.startGame(); });
+        this.keys.P.on('down', () => { if (this.isPlaying) this.togglePause(); });
+
+        // Start állapot
+        this.stopAllTimers();
+        this.player.setVelocity(0, 0);
+        this.isPlaying = false;
+        this.difficulty = 1;
+        this.updateScore(0);
+      }
+
+      startGame() {
+        this.clearSceneEntities();
+        this.ui.overlay.setVisible(false);
+        this.isPlaying = true;
+        this.score = 0;
+        this.difficulty = 1;
+        this.updateScore(0);
+        this.physics.resume();
+        this.starEmitter.start();
+        this.startTimers();
+      }
+
+      togglePause() {
+        const paused = this.physics.world.isPaused;
+        this.physics.world.isPaused = !paused;
+        if (this.isPlaying) this.ui.overlay.setVisible(!paused);
+        this.ui.overlayMsg.setText(paused ? 'Folyamatban…\nP = Szünet\n' : 'Szünet\nFolytatás: P');
+      }
+
+      gameOver() {
+        if (!this.isPlaying) return;
+        this.isPlaying = false;
+        this.stopAllTimers();
+        this.physics.pause();
+        this.starEmitter.stop();
+        if (this.score > this.highScore) {
+          this.highScore = this.score;
+          saveHighScore(this.highScore);
+        }
+        this.ui.highText.setText(`Rekord: ${this.highScore}`);
+        this.ui.overlayMsg.setText(`Vége!\nPont: ${this.score}\nRekord: ${this.highScore}\nÚjrakezdés: Space vagy Kattintás`);
+        this.ui.overlay.setVisible(true);
+      }
+
+      collectBonus(bonus) {
+        if (!bonus.active) return;
+        bonus.disableBody(true, true);
+        this.updateScore(this.score + 150);
+        // Vizuális visszajelzés – felvillanó szöveg
+        const fx = this.add.text(bonus.x, bonus.y, '+150', { fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Arial', fontSize: '20px', color: '#22c55e' }).setDepth(15).setOrigin(0.5);
+        this.tweens.add({ targets: fx, y: fx.y - 30, alpha: 0, duration: 600, onComplete: () => fx.destroy() });
+      }
+
+      spawnObstacle() {
+        const x = Phaser.Math.Between(24, GAME_W - 24);
+        const y = -30;
+        const o = this.groups.obstacles.get(x, y, 'obstacle');
+        if (!o) return;
+        o.setActive(true).setVisible(true);
+        o.body.enable = true;
+        o.setPosition(x, y);
+        const speed = 160 + (this.difficulty * 40);
+        o.setVelocity(0, speed);
+        o.setAngularVelocity(Phaser.Math.Between(-90, 90));
+        // Tisztítás, ha kiment a képből
+        o.checkWorldBounds = true;
+        o.outOfBoundsKill = true;
+      }
+
+      spawnBonus() {
+        const x = Phaser.Math.Between(28, GAME_W - 28);
+        const y = -20;
+        const b = this.groups.bonuses.get(x, y, 'bonus');
+        if (!b) return;
+        b.setActive(true).setVisible(true);
+        b.body.enable = true;
+        b.setPosition(x, y);
+        b.setVelocity(0, 120 + this.difficulty * 30);
+        b.setAngularVelocity(Phaser.Math.Between(-60, 60));
+        b.checkWorldBounds = true;
+        b.outOfBoundsKill = true;
+      }
+
+      startTimers() {
+        // Pontnövelés – folyamatos, skálázott nehézség
+        this.timers.push(this.time.addEvent({
+          delay: 200,
+          loop: true,
+          callback: () => {
+            if (!this.isPlaying) return;
+            this.updateScore(this.score + 10);
+            // Lassú nehézség növelés
+            this.difficulty += 0.02;
+          }
+        }));
+        // Akadály spawn
+        this.timers.push(this.time.addEvent({
+          delay: 700,
+          loop: true,
+          callback: () => this.isPlaying && this.spawnObstacle()
+        }));
+        // Bónusz spawn
+        this.timers.push(this.time.addEvent({
+          delay: 3500,
+          loop: true,
+          callback: () => this.isPlaying && this.spawnBonus()
+        }));
+        // Takarítás – régi objektumok eltávolítása
+        this.timers.push(this.time.addEvent({
+          delay: 1500,
+          loop: true,
+          callback: () => {
+            this.groups.obstacles.children.each(s => { if (s.active && s.y > GAME_H + 40) s.disableBody(true, true); });
+            this.groups.bonuses.children.each(s => { if (s.active && s.y > GAME_H + 40) s.disableBody(true, true); });
+          }
+        }));
+      }
+
+      stopAllTimers() {
+        this.timers.forEach(t => t.remove(false));
+        this.timers = [];
+      }
+
+      clearSceneEntities() {
+        this.groups.obstacles.clear(true, true);
+        this.groups.bonuses.clear(true, true);
+        this.player.setPosition(GAME_W/2, GAME_H - 80);
+        this.player.setVelocity(0, 0);
+      }
+
+      updateScore(v) {
+        this.score = Math.max(0, Math.floor(v));
+        this.ui.scoreText.setText(`Pont: ${this.score}`);
+      }
+
+      update() {
+        if (!this.isPlaying || this.physics.world.isPaused) return;
+
+        const speed = 260;
+        let axis = 0;
+        // Billentyűk
+        if (this.cursors.left.isDown || this.keys.A.isDown) axis -= 1;
+        if (this.cursors.right.isDown || this.keys.D.isDown) axis += 1;
+        // Érintés-zóna
+        if (this.leftDown && !this.rightDown) axis = -1;
+        if (this.rightDown && !this.leftDown) axis = 1;
+
+        this.player.setVelocityX(axis * speed);
+
+        // Kicsi vizuális döntés
+        this.player.setAngle(Phaser.Math.Linear(this.player.angle, axis * 12, 0.25));
+      }
+    }
+
+    // --- Phaser játék indítása ---
+    const config = {
+      type: Phaser.AUTO,
+      parent: 'game',
+      backgroundColor: '#0f172a',
+      scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: GAME_W,
+        height: GAME_H
+      },
+      physics: {
+        default: 'arcade',
+        arcade: { gravity: { y: 0 }, debug: false }
+      },
+      scene: [MainScene]
+    };
+
+    new Phaser.Game(config);
+  </script>
+</body>
+</html>

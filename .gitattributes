@@ -1,0 +1,30 @@
+# /.gitattributes
+# Minden szövegfájlt normálj LF-re a repo-ban (commiton), és a working tree-ben is LF legyen.
+* text eol=lf
+
+# Nyelvek/konkrét minták (nem kötelező, de egyértelmű)
+*.js      text eol=lf
+*.ts      text eol=lf
+*.jsx     text eol=lf
+*.tsx     text eol=lf
+*.html    text eol=lf
+*.css     text eol=lf
+*.json    text eol=lf
+*.md      text eol=lf
+*.yml     text eol=lf
+*.yaml    text eol=lf
+*.sh      text eol=lf
+*.bat     text eol=lf
+
+# Binárisok: sose konvertálja
+*.png  -text
+*.jpg  -text
+*.jpeg -text
+*.gif  -text
+*.webp -text
+*.svg  -text
+*.ico  -text
+*.pdf  -text
+*.zip  -text
+*.mp3  -text
+*.mp4  -text

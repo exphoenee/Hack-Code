@@ -1,0 +1,1891 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>&Udblac;rhaj&oacute;s j&aacute;t&eacute;k fejleszt&eacute;se JavaScript &eacute;s Phaser seg&iacute;ts&eacute;g&eacute;vel</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="űrhajós-játék-fejlesztése-javascript-és-phaser-segítségével">Űrhajós játék fejlesztése JavaScript és Phaser segítségével</h1>
+<h2 id="versenyfelkészítő-kézikönyv-kezdőknek">Versenyfelkészítő kézikönyv kezdőknek</h2>
+<p><strong>Cél:</strong> Önálló játékfejlesztés AI segítségével</p>
+<hr>
+<h2 id="tartalomjegyzék">Tartalomjegyzék</h2>
+<ul>
+<li><a href="#0-fejezet--indul%C3%A1s-eszk%C3%B6z%C3%B6k-%C3%A9s-k%C3%B6rnyezet">0. Fejezet – Indulás: Eszközök és környezet</a></li>
+<li><a href="#1-fejezet--javascript-alapok-null%C3%A1r%C3%B3l">1. Fejezet – JavaScript alapok NULLÁRÓL</a></li>
+<li><a href="#2-fejezet--a-canvas-var%C3%A1zslata">2. Fejezet – A Canvas varázslata</a></li>
+<li><a href="#3-fejezet--phaser-a-j%C3%A1t%C3%A9kmotor-titkai">3. Fejezet – Phaser: A játékmotor titkai</a></li>
+<li><a href="#4-fejezet--%C3%A9letre-kelteni-a-j%C3%A1t%C3%A9kot">4. Fejezet – Életre kelteni a játékot</a></li>
+<li><a href="#5-fejezet--ai-a-titkos-fegyvered">5. Fejezet – AI: A titkos fegyvered</a></li>
+<li><a href="#6-fejezet--csapatmunka-github-bal">6. Fejezet – Csapatmunka GitHub-bal</a></li>
+<li><a href="#7-fejezet--j%C3%A1t%C3%A9kfejleszt%C3%A9si-strat%C3%A9gi%C3%A1k">7. Fejezet – Játékfejlesztési stratégiák</a></li>
+<li><a href="#8-fejezet--versenyfelk%C3%A9sz%C3%ADt%C5%91-tippek">8. Fejezet – Versenyfelkészítő tippek</a></li>
+<li><a href="#9-fejezet--cheatsheet-puska">9. Fejezet – CheatSheet</a></li>
+</ul>
+<hr>
+<h2 id="0-fejezet--indulás-eszközök-és-környezet">0. Fejezet – Indulás: Eszközök és környezet</h2>
+<h3 id="-mit-fogsz-megtanulni">🎯 Mit fogsz megtanulni?</h3>
+<p>Ebben a fejezetben megtanulod, hogyan állítsd be a professzionális fejlesztői környezetedet. Ez az alapja mindennek – ha ezt jól csinálod, a többi sokkal könnyebb lesz!</p>
+<h3 id="01-visual-studio-code--a-fejlesztő-legjobb-barátja">0.1 Visual Studio Code – A fejlesztő legjobb barátja</h3>
+<p>A VSCode olyan, mint egy svájci bicska a programozóknak. Ingyenes, gyors, és rengeteg segítséget ad.</p>
+<p><strong>Miért pont VSCode?</strong></p>
+<ul>
+<li>Automatikusan színezi a kódot → könnyebb olvasni</li>
+<li>Hibajelzés gépelés közben → kevesebb bug</li>
+<li>Bővítmények → szuperképességek</li>
+<li>Profi programozók is ezt használják</li>
+</ul>
+<p><strong>Telepítés 3 lépésben:</strong></p>
+<ol>
+<li><strong>Letöltés:</strong> Menj a <a href="https://code.visualstudio.com">https://code.visualstudio.com</a> oldalra</li>
+<li><strong>Telepítés:</strong> Futtasd a letöltött fájlt, kattints &quot;Next, Next, Install&quot;</li>
+<li><strong>Elindítás:</strong> Nyisd meg a VSCode-ot</li>
+</ol>
+<p><strong>📝 Fontos beállítás (opcionális, de hasznos):</strong></p>
+<p>Menj a <strong>File → Preferences → Settings</strong> menüpontba, és keresd meg:</p>
+<ul>
+<li><strong>Auto Save</strong>: állítsd <code>afterDelay</code>-re (automatikus mentés)</li>
+<li><strong>Font Size</strong>: 14-16 közötti (kényelmes olvasás)</li>
+</ul>
+<h3 id="02-projekt-létrehozása--a-helyes-módszer">0.2 Projekt létrehozása – A HELYES módszer</h3>
+<p><strong>⚠️ Nagyon fontos:</strong> Soha ne nyiss meg egyetlen fájlt! Mindig az egész projekt mappát nyisd meg!</p>
+<p><strong>Miért?</strong> Mert a játékod nem egy fájl. Lesznek benne:</p>
+<ul>
+<li>HTML fájlok (a játék szerkezete)</li>
+<li>JavaScript fájlok (a játék logikája)</li>
+<li>Képek (sprites, háttér)</li>
+<li>Hangok (effektek, zene)</li>
+<li>CSS fájlok (stílus)</li>
+</ul>
+<p><strong>Lépésről lépésre:</strong></p>
+<pre><code>1. Nyisd meg a Dokumentumok mappát
+2. Jobb klikk → Új mappa
+3. Elnevezés: &quot;urhajo-jatek&quot; (NE használj ékezetes betűt, szóközt!)
+4. VSCode-ban: File → Open Folder
+5. Válaszd ki az &quot;urhajo-jatek&quot; mappát
+6. Kattints: &quot;Select Folder&quot;
+</code></pre>
+<p><strong>✅ Helyes mappa struktúra:</strong></p>
+<pre><code>urhajo-jatek/
+├── index.html          (főoldal)
+├── main.js             (fő játék kód)
+├── assets/             (erőforrások)
+│   ├── images/         (képek)
+│   ├── sounds/         (hangok)
+│   └── fonts/          (betűtípusok)
+└── README.md           (dokumentáció)
+</code></pre>
+<h3 id="03-az-első-két-fájl--hello-world">0.3 Az első két fájl – Hello World!</h3>
+<h4 id="indexhtml-létrehozása">index.html létrehozása</h4>
+<ol>
+<li>VSCode Explorer panel (bal oldalt)</li>
+<li>Kattints a <strong>New File</strong> ikonra (📄+)</li>
+<li>Írd be: <code>index.html</code> és nyomj Enter-t</li>
+</ol>
+<p><strong>Másold be ezt a kódot:</strong></p>
+<pre><code class="language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">&quot;hu&quot;</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">&quot;UTF-8&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;viewport&quot;</span> <span class="hljs-attr">content</span>=<span class="hljs-string">&quot;width=device-width, initial-scale=1.0&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Űrhajós Kaland - Az én játékom<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">style</span>&gt;</span><span class="language-css">
+        <span class="hljs-selector-tag">body</span> {
+            <span class="hljs-attribute">margin</span>: <span class="hljs-number">0</span>;
+            <span class="hljs-attribute">padding</span>: <span class="hljs-number">0</span>;
+            <span class="hljs-attribute">background-color</span>: <span class="hljs-number">#000033</span>;
+            <span class="hljs-attribute">display</span>: flex;
+            <span class="hljs-attribute">justify-content</span>: center;
+            <span class="hljs-attribute">align-items</span>: center;
+            <span class="hljs-attribute">min-height</span>: <span class="hljs-number">100vh</span>;
+            <span class="hljs-attribute">font-family</span>: Arial, sans-serif;
+        }
+    </span><span class="hljs-tag">&lt;/<span class="hljs-name">style</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;game-container&quot;</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">h1</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;color: white; text-align: center;&quot;</span>&gt;</span>🚀 Űrhajós Kaland 🌌<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;color: #00ff00; text-align: center;&quot;</span>&gt;</span>Betöltés...<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+
+    <span class="hljs-comment">&lt;!-- A JavaScript fájl betöltése --&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;main.js&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
+</code></pre>
+<p><strong>🔍 Kód magyarázat (sorról sorra):</strong></p>
+<ul>
+<li><code>&lt;!DOCTYPE html&gt;</code> = Megmondja a böngészőnek: ez egy HTML5 oldal</li>
+<li><code>&lt;meta charset=&quot;UTF-8&quot;&gt;</code> = Magyar ékezetek is működnek</li>
+<li><code>&lt;title&gt;</code> = A böngésző fül címe (fontos a versenyen, mert látszik!)</li>
+<li><code>&lt;style&gt;</code> = CSS kód, ami a kinézetet állítja</li>
+<li><code>background-color: #000033</code> = Sötétkék háttér (űr érzés)</li>
+<li><code>display: flex</code> = Modern elrendezés (középre igazítás)</li>
+<li><code>&lt;script src=&quot;main.js&quot;&gt;</code> = Itt töltődik be a játék kódja</li>
+</ul>
+<h4 id="mainjs-létrehozása">main.js létrehozása</h4>
+<ol>
+<li>Újra a <strong>New File</strong> ikon</li>
+<li>Írd be: <code>main.js</code> és nyomj Enter-t</li>
+</ol>
+<p><strong>Első JavaScript kódod:</strong></p>
+<pre><code class="language-javascript"><span class="hljs-comment">// Ez egy komment - a gép nem hajtja végre, csak emberi jegyzet</span>
+
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;🎮 A játék motorja elindult!&quot;</span>);
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Készítette: [IDE ÍRD A NEVED]&quot;</span>);
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Verziószám: 1.0.0&quot;</span>);
+
+<span class="hljs-comment">// Változók a játék állapotának tárolásához</span>
+<span class="hljs-keyword">let</span> jatekFut = <span class="hljs-literal">false</span>;
+<span class="hljs-keyword">let</span> pontszam = <span class="hljs-number">0</span>;
+<span class="hljs-keyword">let</span> elet = <span class="hljs-number">3</span>;
+
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Kezdő állapot:&quot;</span>);
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;- Pontszám:&quot;</span>, pontszam);
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;- Életek:&quot;</span>, elet);
+</code></pre>
+<p><strong>💡 Magyarázat:</strong></p>
+<ul>
+<li><code>//</code> = Ez után komment következik (magyarázat)</li>
+<li><code>console.log()</code> = Kiír valamit a böngésző konzoljába (hibakereséshez NAGYON fontos!)</li>
+<li><code>let</code> = Változót hoz létre (olyan, mint egy doboz, amiben adatot tárolsz)</li>
+</ul>
+<h3 id="04-live-server--a-varázslat-kulcsa-">0.4 Live Server – A varázslat kulcsa 🔴</h3>
+<p><strong>Mi az a Live Server?</strong></p>
+<p>Egy VSCode bővítmény, ami:</p>
+<ul>
+<li>Automatikusan megnyitja a játékod a böngészőben</li>
+<li><strong>Azonnal frissíti</strong>, amikor mentesz (nem kell F5-öt nyomni!)</li>
+<li>Professzionális fejlesztői élmény</li>
+</ul>
+<p><strong>Telepítés:</strong></p>
+<ol>
+<li>VSCode bal oldali menü: <strong>Extensions</strong> (4 kocka ikon) VAGY nyomd meg: <code>Ctrl+Shift+X</code></li>
+<li>Kereső mezőbe írd: <strong>Live Server</strong></li>
+<li>Ritwick Dey-től az &quot;Live Server&quot; bővítmény</li>
+<li>Kattints: <strong>Install</strong></li>
+<li>Várd meg, míg települ (néhány másodperc)</li>
+</ol>
+<p><strong>Használat:</strong></p>
+<ol>
+<li>Kattints az <code>index.html</code> fájlra (hogy &quot;aktív&quot; legyen)</li>
+<li>Jobb alsó sarokban megjelenik: <strong>Go Live</strong> gomb</li>
+<li>Kattints rá!</li>
+<li>Megnyílik a böngésző: <code>http://127.0.0.1:5500/index.html</code></li>
+</ol>
+<p><strong>✅ Sikeres, ha látod:</strong></p>
+<ul>
+<li>A címet: &quot;Űrhajós Kaland - Az én játékom&quot;</li>
+<li>A szöveget: &quot;Betöltés...&quot;</li>
+</ul>
+<h3 id="05-a-böngésző-konzol--a-fejlesztő-röntgenszemüvege-">0.5 A böngésző konzol – A fejlesztő röntgenszemüvege 👓</h3>
+<p><strong>Mit csinál a konzol?</strong></p>
+<p>A konzol olyan, mint egy titkos ablak a játékod belsejébe. Itt látod:</p>
+<ul>
+<li>Mit csinál éppen a kód</li>
+<li>Hol van hiba</li>
+<li>Milyen értékek vannak a változókban</li>
+</ul>
+<p><strong>Megnyitás:</strong></p>
+<pre><code>Windows: F12 vagy Ctrl+Shift+I
+Mac: Cmd+Option+I
+</code></pre>
+<p><strong>Vagy:</strong> Jobb klikk az oldalon → <strong>Inspect</strong> → <strong>Console</strong> fül</p>
+<p><strong>📊 Mit látsz most?</strong></p>
+<p>Ha mindent jól csináltál:</p>
+<pre><code>🎮 A játék motorja elindult!
+Készítette: [A te neved]
+Verziószám: 1.0.0
+Kezdő állapot:
+- Pontszám: 0
+- Életek: 3
+</code></pre>
+<p><strong>🔴 Ha HIBÁT látsz (piros szöveg):</strong></p>
+<pre><code>Uncaught ReferenceError: xyz is not defined
+</code></pre>
+<p>Ez normális! Tanulás közben MINDENKI csinál hibákat. A jó programozó gyorsan megtalálja és kijavítja őket.</p>
+<p><strong>Gyakori hibák kezdőknek:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Hibaüzenet</th>
+<th>Mit jelent</th>
+<th>Megoldás</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>not defined</code></td>
+<td>Olyan változót használsz, ami nem létezik</td>
+<td>Ellenőrizd: írtad-e a <code>let nev = ...</code> sort?</td>
+</tr>
+<tr>
+<td><code>Unexpected token</code></td>
+<td>Szintaktikai hiba (pl. pont vessző hiányzik)</td>
+<td>Nézd meg a sor végén van-e <code>;</code></td>
+</tr>
+<tr>
+<td><code>Cannot read property of undefined</code></td>
+<td>Valaminek nincs értéke (undefined)</td>
+<td>Ellenőrizd, hogy létrehoztad-e a változót</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="1-fejezet--javascript-alapok-nulláról">1. Fejezet – JavaScript alapok NULLÁRÓL</h2>
+<h3 id="-mit-fogsz-megtanulni-1">🎯 Mit fogsz megtanulni?</h3>
+<p>Ebben a fejezetben a JavaScript alapjait sajátítod el. Ne ijedj meg, ha eleinte furcsának tűnik – minden programozó így kezdte!</p>
+<h3 id="11-mi-az-a-javascript-és-miért-pont-ezt-tanulod">1.1 Mi az a JavaScript? (És miért pont ezt tanulod?)</h3>
+<p><strong>Egyszerű válasz:</strong> A JavaScript a weboldalak programozási nyelve.</p>
+<p><strong>Részletes válasz:</strong></p>
+<p>Képzeld el, hogy egy házat építesz:</p>
+<ul>
+<li><strong>HTML</strong> = a ház szerkezete (falak, ablak, ajtó)</li>
+<li><strong>CSS</strong> = a ház kinézete (festés, bútorok, dekoráció)</li>
+<li><strong>JavaScript</strong> = a ház &quot;intelligenciája&quot; (világítás kapcsoló, ajtócsengő, riasztó)</li>
+</ul>
+<p><strong>Miért JavaScript és nem Python/C++/Java?</strong></p>
+<ol>
+<li><strong>Böngészőben fut</strong> – nem kell telepíteni semmit</li>
+<li><strong>Azonnal látod az eredményt</strong> – módosítasz, frissíted, kész</li>
+<li><strong>Játékokhoz tökéletes</strong> – Phaser, PixiJS, Three.js motorok</li>
+<li><strong>A világ legelterjedtebb nyelve</strong> – minden weboldal ezt használja</li>
+</ol>
+<h3 id="12-változók--az-adatok-otthona-">1.2 Változók – Az adatok otthona 🏠</h3>
+<p><strong>Mi az a változó?</strong></p>
+<p>Egy &quot;címkézett doboz&quot;, amiben valamilyen adatot tárolsz.</p>
+<p><strong>Példa a való életből:</strong></p>
+<pre><code>Képzeld el, hogy van egy dobozod, rá van írva: &quot;játékosNév&quot;
+Ebbe a dobozba beleteszed a nevet: &quot;Bence&quot;
+Később bármikor megnézheted, vagy kicserélheted: &quot;Márton&quot;
+</code></pre>
+<p><strong>JavaScript-ben így néz ki:</strong></p>
+<pre><code class="language-javascript"><span class="hljs-keyword">let</span> jatekosNev = <span class="hljs-string">&quot;Bence&quot;</span>;
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(jatekosNev); <span class="hljs-comment">// Kiírja: Bence</span>
+
+<span class="hljs-comment">// Később megváltoztathatod:</span>
+jatekosNev = <span class="hljs-string">&quot;Márton&quot;</span>;
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(jatekosNev); <span class="hljs-comment">// Kiírja: Márton</span>
+</code></pre>
+<p><strong>📚 Változó típusok (FONTOS!):</strong></p>
+<pre><code class="language-javascript"><span class="hljs-comment">// 1. SZÖVEG (String) - idézőjelben</span>
+<span class="hljs-keyword">let</span> nev = <span class="hljs-string">&quot;Kapitány Kirk&quot;</span>;
+<span class="hljs-keyword">let</span> uzenet = <span class="hljs-string">&quot;Űrhajó sérült!&quot;</span>;
+
+<span class="hljs-comment">// 2. SZÁM (Number) - nincs idézőjel</span>
+<span class="hljs-keyword">let</span> pontszam = <span class="hljs-number">0</span>;
+<span class="hljs-keyword">let</span> elet = <span class="hljs-number">3</span>;
+<span class="hljs-keyword">let</span> sebesseg = <span class="hljs-number">5.5</span>;
+
+<span class="hljs-comment">// 3. IGAZ/HAMIS (Boolean) - true vagy false</span>
+<span class="hljs-keyword">let</span> jatekFut = <span class="hljs-literal">true</span>;
+<span class="hljs-keyword">let</span> jatekVege = <span class="hljs-literal">false</span>;
+<span class="hljs-keyword">let</span> tuzelhet = <span class="hljs-literal">true</span>;
+
+<span class="hljs-comment">// 4. TÖMB (Array) - több érték egyszerre</span>
+<span class="hljs-keyword">let</span> ellenfelek = [<span class="hljs-string">&quot;Meteor&quot;</span>, <span class="hljs-string">&quot;Idegen hajó&quot;</span>, <span class="hljs-string">&quot;Űrszemét&quot;</span>];
+<span class="hljs-keyword">let</span> pontok = [<span class="hljs-number">10</span>, <span class="hljs-number">20</span>, <span class="hljs-number">50</span>, <span class="hljs-number">100</span>];
+
+<span class="hljs-comment">// 5. OBJEKTUM (Object) - összetett adat</span>
+<span class="hljs-keyword">let</span> urhajo = {
+    <span class="hljs-attr">nev</span>: <span class="hljs-string">&quot;Enterprise&quot;</span>,
+    <span class="hljs-attr">elet</span>: <span class="hljs-number">100</span>,
+    <span class="hljs-attr">pajzs</span>: <span class="hljs-number">50</span>,
+    <span class="hljs-attr">fegyver</span>: <span class="hljs-string">&quot;Lézer&quot;</span>
+};
+</code></pre>
+<p><strong>🎮 Játékos példa:</strong></p>
+<pre><code class="language-javascript"><span class="hljs-comment">// Űrhajó adatai</span>
+<span class="hljs-keyword">let</span> urhajoX = <span class="hljs-number">400</span>;        <span class="hljs-comment">// vízszintes pozíció</span>
+<span class="hljs-keyword">let</span> urhajoY = <span class="hljs-number">500</span>;        <span class="hljs-comment">// függőleges pozíció</span>
+<span class="hljs-keyword">let</span> urhajoElet = <span class="hljs-number">100</span>;     <span class="hljs-comment">// életerő százalékban</span>
+<span class="hljs-keyword">let</span> urhajoPajzs = <span class="hljs-number">50</span>;     <span class="hljs-comment">// pajzs százalékban</span>
+
+<span class="hljs-comment">// Játék állapot</span>
+<span class="hljs-keyword">let</span> jatekPontszam = <span class="hljs-number">0</span>;
+<span class="hljs-keyword">let</span> szint = <span class="hljs-number">1</span>;
+<span class="hljs-keyword">let</span> ellenfelekSzama = <span class="hljs-number">5</span>;
+
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Űrhajó indulási adatok:&quot;</span>);
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Pozíció X:&quot;</span>, urhajoX);
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Pozíció Y:&quot;</span>, urhajoY);
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Életerő:&quot;</span>, urhajoElet + <span class="hljs-string">&quot;%&quot;</span>);
+</code></pre>
+<h3 id="13-műveletek--számolás-változókkal-">1.3 Műveletek – Számolás változókkal 🧮</h3>
+<p><strong>Alapvető matematika:</strong></p>
+<pre><code class="language-javascript"><span class="hljs-keyword">let</span> a = <span class="hljs-number">10</span>;
+<span class="hljs-keyword">let</span> b = <span class="hljs-number">3</span>;
+
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Összeadás:&quot;</span>, a + b);      <span class="hljs-comment">// 13</span>
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Kivonás:&quot;</span>, a - b);        <span class="hljs-comment">// 7</span>
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Szorzás:&quot;</span>, a * b);        <span class="hljs-comment">// 30</span>
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Osztás:&quot;</span>, a / b);         <span class="hljs-comment">// 3.3333...</span>
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Maradék:&quot;</span>, a % b);        <span class="hljs-comment">// 1 (10 osztva 3-mal, maradék 1)</span>
+</code></pre>
+<p><strong>🎮 Játékban használt műveletek:</strong></p>
+<pre><code class="language-javascript"><span class="hljs-comment">// Pontszám növelése</span>
+<span class="hljs-keyword">let</span> pontszam = <span class="hljs-number">0</span>;
+pontszam = pontszam + <span class="hljs-number">10</span>;  <span class="hljs-comment">// Most 10</span>
+pontszam = pontszam + <span class="hljs-number">20</span>;  <span class="hljs-comment">// Most 30</span>
+
+<span class="hljs-comment">// RÖVIDEBB írásmód (ugyanaz):</span>
+pontszam += <span class="hljs-number">10</span>;  <span class="hljs-comment">// Hozzáad 10-et</span>
+pontszam -= <span class="hljs-number">5</span>;   <span class="hljs-comment">// Levon 5-öt</span>
+pontszam *= <span class="hljs-number">2</span>;   <span class="hljs-comment">// Megszorozza 2-vel</span>
+pontszam /= <span class="hljs-number">2</span>;   <span class="hljs-comment">// Elosztja 2-vel</span>
+
+<span class="hljs-comment">// Egyel növelés/csökkentés (nagyon gyakori!):</span>
+pontszam++;  <span class="hljs-comment">// Ugyanaz, mint: pontszam = pontszam + 1</span>
+elet--;      <span class="hljs-comment">// Ugyanaz, mint: elet = elet - 1</span>
+
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Végső pontszám:&quot;</span>, pontszam);
+</code></pre>
+<h3 id="14-feltételek--döntéshozatal-if--else-">1.4 Feltételek – Döntéshozatal (if / else) 🤔</h3>
+<p><strong>Miért kell ez?</strong></p>
+<p>A játéknak döntéseket kell hoznia:</p>
+<ul>
+<li>Ha az űrhajó kilép a képernyőből → visszahelyezés</li>
+<li>Ha eltalál egy ellenséget → pont hozzáadása</li>
+<li>Ha elfogynak az életek → játék vége</li>
+</ul>
+<p><strong>Alap szintaxis:</strong></p>
+<pre><code class="language-javascript"><span class="hljs-keyword">if</span> (feltétel) {
+    <span class="hljs-comment">// Ez fut le, ha a feltétel IGAZ</span>
+} <span class="hljs-keyword">else</span> {
+    <span class="hljs-comment">// Ez fut le, ha a feltétel HAMIS</span>
+}
+</code></pre>
+<p><strong>🎮 Konkrét példák:</strong></p>
+<pre><code class="language-javascript"><span class="hljs-comment">// 1. Egyszerű életellenőrzés</span>
+<span class="hljs-keyword">let</span> elet = <span class="hljs-number">0</span>;
+
+<span class="hljs-keyword">if</span> (elet &lt;= <span class="hljs-number">0</span>) {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;❌ JÁTÉK VÉGE!&quot;</span>);
+} <span class="hljs-keyword">else</span> {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;✅ Még élsz, folytatódik a játék!&quot;</span>);
+}
+
+<span class="hljs-comment">// 2. Szint nehézség beállítása</span>
+<span class="hljs-keyword">let</span> pontszam = <span class="hljs-number">250</span>;
+
+<span class="hljs-keyword">if</span> (pontszam &lt; <span class="hljs-number">100</span>) {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Szint: KÖNNYŰ&quot;</span>);
+} <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (pontszam &lt; <span class="hljs-number">300</span>) {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Szint: KÖZEPES&quot;</span>);
+} <span class="hljs-keyword">else</span> {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Szint: NEHÉZ&quot;</span>);
+}
+
+<span class="hljs-comment">// 3. Határellenőrzés (NAGYON gyakori játékokban!)</span>
+<span class="hljs-keyword">let</span> urhajoX = <span class="hljs-number">850</span>;
+<span class="hljs-keyword">let</span> kepernyoSzelesseg = <span class="hljs-number">800</span>;
+
+<span class="hljs-keyword">if</span> (urhajoX &gt; kepernyoSzelesseg) {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;⚠️ Az űrhajó kilógott a képernyőből!&quot;</span>);
+    urhajoX = kepernyoSzelesseg; <span class="hljs-comment">// visszarakjuk</span>
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;✅ Pozíció korrigálva:&quot;</span>, urhajoX);
+}
+</code></pre>
+<h3 id="15-ciklusok--ismétlés-for-loop-">1.5 Ciklusok – Ismétlés (for loop) 🔁</h3>
+<p><strong>Miért kell ciklus?</strong></p>
+<p>Képzeld el, hogy 10 ellenséges űrhajót kell mozgatni. Így is csinálhatnád:</p>
+<pre><code class="language-javascript"><span class="hljs-comment">// ❌ ROSSZ megoldás (kódismétlés):</span>
+ellenseg1X += <span class="hljs-number">1</span>;
+ellenseg2X += <span class="hljs-number">1</span>;
+ellenseg3X += <span class="hljs-number">1</span>;
+<span class="hljs-comment">// ... és így tovább 10-szer 😱</span>
+</code></pre>
+<p><strong>✅ JÓ megoldás ciklussal:</strong></p>
+<pre><code class="language-javascript"><span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10</span>; i++) {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Ellenseg&quot;</span>, i, <span class="hljs-string">&quot;mozog...&quot;</span>);
+}
+</code></pre>
+<p><strong>Ciklus felépítése (részletesen):</strong></p>
+<pre><code class="language-javascript"><span class="hljs-keyword">for</span> (kezdőérték; feltétel; léptetés) {
+    <span class="hljs-comment">// Ez ismétlődik, amíg a feltétel igaz</span>
+}
+
+<span class="hljs-comment">// Konkrét példa:</span>
+<span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">5</span>; i++) {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Ismétlés száma:&quot;</span>, i);
+}
+
+<span class="hljs-comment">// Mit csinál ez?</span>
+<span class="hljs-comment">// 1. i = 0  → konzol: &quot;Ismétlés száma: 0&quot;</span>
+<span class="hljs-comment">// 2. i = 1  → konzol: &quot;Ismétlés száma: 1&quot;</span>
+<span class="hljs-comment">// 3. i = 2  → konzol: &quot;Ismétlés száma: 2&quot;</span>
+<span class="hljs-comment">// 4. i = 3  → konzol: &quot;Ismétlés száma: 3&quot;</span>
+<span class="hljs-comment">// 5. i = 4  → konzol: &quot;Ismétlés száma: 4&quot;</span>
+<span class="hljs-comment">// 6. i = 5  → MEGÁLL (mert 5 NEM &lt; 5)</span>
+</code></pre>
+<h3 id="16-függvények--újrafelhasználható-kódrészek-">1.6 Függvények – Újrafelhasználható kódrészek 🔧</h3>
+<p><strong>Mi az a függvény?</strong></p>
+<p>Olyan, mint egy gép, ami:</p>
+<ol>
+<li>Kapsz valamilyen <strong>bemenetet</strong> (input)</li>
+<li>Valami <strong>történik vele</strong></li>
+<li>Visszaad egy <strong>eredményt</strong> (output)</li>
+</ol>
+<p><strong>Alap szintaxis:</strong></p>
+<pre><code class="language-javascript"><span class="hljs-keyword">function</span> <span class="hljs-title function_">fuggvenyNev</span>(<span class="hljs-params">parameter1, parameter2</span>) {
+    <span class="hljs-comment">// Itt történik valami</span>
+    <span class="hljs-keyword">return</span> eredmeny;
+}
+
+<span class="hljs-comment">// Meghívás:</span>
+<span class="hljs-keyword">let</span> result = <span class="hljs-title function_">fuggvenyNev</span>(<span class="hljs-number">10</span>, <span class="hljs-number">20</span>);
+</code></pre>
+<p><strong>🎮 Konkrét játékbeli példák:</strong></p>
+<pre><code class="language-javascript"><span class="hljs-comment">// 1. Távolságszámítás két pont között (Pitagorasz-tétel)</span>
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">tavolsag</span>(<span class="hljs-params">x1, y1, x2, y2</span>) {
+    <span class="hljs-keyword">let</span> dx = x2 - x1;
+    <span class="hljs-keyword">let</span> dy = y2 - y1;
+    <span class="hljs-keyword">let</span> d = <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">sqrt</span>(dx * dx + dy * dy);
+    <span class="hljs-keyword">return</span> d;
+}
+
+<span class="hljs-comment">// Használat:</span>
+<span class="hljs-keyword">let</span> urhajoX = <span class="hljs-number">100</span>, urhajoY = <span class="hljs-number">100</span>;
+<span class="hljs-keyword">let</span> meteorX = <span class="hljs-number">200</span>, meteorY = <span class="hljs-number">200</span>;
+<span class="hljs-keyword">let</span> t = <span class="hljs-title function_">tavolsag</span>(urhajoX, urhajoY, meteorX, meteorY);
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Távolság a meteortól:&quot;</span>, t, <span class="hljs-string">&quot;pixel&quot;</span>);
+
+<span class="hljs-comment">// 2. Véletlen szám generálása tartományban</span>
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">veletlen</span>(<span class="hljs-params">min, max</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">floor</span>(<span class="hljs-title class_">Math</span>.<span class="hljs-title function_">random</span>() * (max - min + <span class="hljs-number">1</span>)) + min;
+}
+
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Véletlen sebesség:&quot;</span>, <span class="hljs-title function_">veletlen</span>(<span class="hljs-number">1</span>, <span class="hljs-number">10</span>));
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Véletlen X pozíció:&quot;</span>, <span class="hljs-title function_">veletlen</span>(<span class="hljs-number">0</span>, <span class="hljs-number">800</span>));
+
+<span class="hljs-comment">// 3. Ellenséges űrhajó létrehozása</span>
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">ujEllenseg</span>(<span class="hljs-params">x, y, tipus</span>) {
+    <span class="hljs-keyword">let</span> ellenseg = {
+        <span class="hljs-attr">x</span>: x,
+        <span class="hljs-attr">y</span>: y,
+        <span class="hljs-attr">tipus</span>: tipus,
+        <span class="hljs-attr">elet</span>: <span class="hljs-number">100</span>,
+        <span class="hljs-attr">sebesseg</span>: <span class="hljs-title function_">veletlen</span>(<span class="hljs-number">1</span>, <span class="hljs-number">5</span>)
+    };
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Új ellenség létrehozva:&quot;</span>, ellenseg);
+    <span class="hljs-keyword">return</span> ellenseg;
+}
+
+<span class="hljs-keyword">let</span> ellenseg1 = <span class="hljs-title function_">ujEllenseg</span>(<span class="hljs-number">100</span>, <span class="hljs-number">50</span>, <span class="hljs-string">&quot;Meteor&quot;</span>);
+<span class="hljs-keyword">let</span> ellenseg2 = <span class="hljs-title function_">ujEllenseg</span>(<span class="hljs-number">300</span>, <span class="hljs-number">80</span>, <span class="hljs-string">&quot;Idegen hajó&quot;</span>);
+</code></pre>
+<hr>
+<h2 id="2-fejezet--a-canvas-varázslata">2. Fejezet – A Canvas varázslata</h2>
+<h3 id="-mit-fogsz-megtanulni-2">🎯 Mit fogsz megtanulni?</h3>
+<p>A Canvas egy &quot;digitális vászon&quot;, amire rajzolhatsz. Ebben a fejezetben megtanulod, hogyan készíts egyszerű animációkat nyers JavaScript-tel. Ez az alapja mindennek, amit a Phaser is csinál a háttérben!</p>
+<h3 id="21-mi-az-a-canvas-és-miért-fontos">2.1 Mi az a Canvas és miért fontos?</h3>
+<p><strong>Hasonlat:</strong></p>
+<p>Képzeld el, hogy van egy nagy fehér papírod és színes ceruzáid. A Canvas pont így működik, csak digitálisan:</p>
+<ul>
+<li>A papír = <code>&lt;canvas&gt;</code> HTML elem</li>
+<li>A ceruzák = JavaScript rajzolási parancsok</li>
+<li>A rajz = a játékod grafikai elemei</li>
+</ul>
+<p><strong>Miért tanulod ezt Phaser előtt?</strong></p>
+<ol>
+<li><strong>Megérted, mi történik a háttérben</strong> – nem vakon használod a motorot</li>
+<li><strong>Hibakereséskor</strong> tudod, mit keresel</li>
+<li><strong>Versenypontszám</strong> – ha érted az alapokat, jobban tervezed a játékot</li>
+</ol>
+<h3 id="22-canvas-létrehozása-html-ben">2.2 Canvas létrehozása HTML-ben</h3>
+<p><strong>index.html módosítása:</strong></p>
+<p>Cseréld ki a <code>&lt;body&gt;</code> részt erre:</p>
+<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;text-align: center;&quot;</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">h1</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;color: white;&quot;</span>&gt;</span>🚀 Canvas Teszt<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">canvas</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;gameCanvas&quot;</span> <span class="hljs-attr">width</span>=<span class="hljs-string">&quot;800&quot;</span> <span class="hljs-attr">height</span>=<span class="hljs-string">&quot;600&quot;</span>
+                <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;border: 2px solid #00ff00; background-color: #000033;&quot;</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">canvas</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;color: #00ff00;&quot;</span>&gt;</span>Canvas méret: 800x600 pixel<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;main.js&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+</code></pre>
+<h3 id="23-canvas-elérése-javascript-ből">2.3 Canvas elérése JavaScript-ből</h3>
+<p><strong>main.js kód:</strong></p>
+<pre><code class="language-javascript"><span class="hljs-comment">// 1. CANVAS ELEM ELÉRÉSE</span>
+<span class="hljs-keyword">const</span> canvas = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">&quot;gameCanvas&quot;</span>);
+
+<span class="hljs-comment">// Ellenőrzés: létezik-e?</span>
+<span class="hljs-keyword">if</span> (!canvas) {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">&quot;❌ HIBA: Canvas nem található!&quot;</span>);
+} <span class="hljs-keyword">else</span> {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;✅ Canvas elem megtalálva:&quot;</span>, canvas);
+}
+
+<span class="hljs-comment">// 2. RAJZOLÁSI KONTEXTUS (2D rajzoláshoz)</span>
+<span class="hljs-keyword">const</span> ctx = canvas.<span class="hljs-title function_">getContext</span>(<span class="hljs-string">&quot;2d&quot;</span>);
+
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;✅ Rajzolási kontextus létrehozva&quot;</span>);
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Canvas szélesség:&quot;</span>, canvas.<span class="hljs-property">width</span>);
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Canvas magasság:&quot;</span>, canvas.<span class="hljs-property">height</span>);
+</code></pre>
+<h3 id="24-alap-formák-rajzolása">2.4 Alap formák rajzolása</h3>
+<pre><code class="language-javascript"><span class="hljs-comment">// KITÖLTÖTT TÉGLALAP</span>
+ctx.<span class="hljs-property">fillStyle</span> = <span class="hljs-string">&quot;red&quot;</span>;  <span class="hljs-comment">// Szín beállítása</span>
+ctx.<span class="hljs-title function_">fillRect</span>(<span class="hljs-number">50</span>, <span class="hljs-number">50</span>, <span class="hljs-number">100</span>, <span class="hljs-number">80</span>);  <span class="hljs-comment">// x, y, szélesség, magasság</span>
+
+<span class="hljs-comment">// KÖR RAJZOLÁSA</span>
+ctx.<span class="hljs-title function_">beginPath</span>();
+ctx.<span class="hljs-title function_">arc</span>(<span class="hljs-number">400</span>, <span class="hljs-number">300</span>, <span class="hljs-number">50</span>, <span class="hljs-number">0</span>, <span class="hljs-number">2</span> * <span class="hljs-title class_">Math</span>.<span class="hljs-property">PI</span>);
+ctx.<span class="hljs-property">fillStyle</span> = <span class="hljs-string">&quot;blue&quot;</span>;
+ctx.<span class="hljs-title function_">fill</span>();
+
+<span class="hljs-comment">// SZÖVEG KIÍRÁSA</span>
+ctx.<span class="hljs-property">font</span> = <span class="hljs-string">&quot;30px Arial&quot;</span>;
+ctx.<span class="hljs-property">fillStyle</span> = <span class="hljs-string">&quot;white&quot;</span>;
+ctx.<span class="hljs-title function_">fillText</span>(<span class="hljs-string">&quot;PONTSZÁM: 0&quot;</span>, <span class="hljs-number">50</span>, <span class="hljs-number">500</span>);
+</code></pre>
+<h3 id="25-képek-betöltése-és-rajzolása">2.5 Képek betöltése és rajzolása</h3>
+<pre><code class="language-javascript"><span class="hljs-comment">// KÉP OBJEKTUM LÉTREHOZÁSA</span>
+<span class="hljs-keyword">const</span> urhajoKep = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Image</span>();
+
+<span class="hljs-comment">// BETÖLTÉS ELŐTTI ESEMÉNY</span>
+urhajoKep.<span class="hljs-property">onload</span> = <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;✅ Űrhajó kép betöltve!&quot;</span>);
+    ctx.<span class="hljs-title function_">drawImage</span>(urhajoKep, <span class="hljs-number">100</span>, <span class="hljs-number">100</span>);
+    ctx.<span class="hljs-title function_">drawImage</span>(urhajoKep, <span class="hljs-number">300</span>, <span class="hljs-number">100</span>, <span class="hljs-number">80</span>, <span class="hljs-number">80</span>);  <span class="hljs-comment">// átméretezve</span>
+};
+
+<span class="hljs-comment">// HIBA KEZELÉSE</span>
+urhajoKep.<span class="hljs-property">onerror</span> = <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">&quot;❌ HIBA: Nem sikerült betölteni a képet!&quot;</span>);
+};
+
+<span class="hljs-comment">// FORRÁS BEÁLLÍTÁSA</span>
+urhajoKep.<span class="hljs-property">src</span> = <span class="hljs-string">&quot;urhajo.png&quot;</span>;
+</code></pre>
+<h3 id="26-kép-mozgatása---animáció-">2.6 Kép mozgatása - ANIMÁCIÓ! 🎬</h3>
+<pre><code class="language-javascript"><span class="hljs-comment">// GLOBÁLIS VÁLTOZÓK</span>
+<span class="hljs-keyword">let</span> urhajoX = <span class="hljs-number">100</span>;
+<span class="hljs-keyword">let</span> urhajoY = <span class="hljs-number">300</span>;
+<span class="hljs-keyword">let</span> sebesseg = <span class="hljs-number">2</span>;
+
+<span class="hljs-keyword">const</span> urhajoKep = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Image</span>();
+urhajoKep.<span class="hljs-property">src</span> = <span class="hljs-string">&quot;urhajo.png&quot;</span>;
+
+urhajoKep.<span class="hljs-property">onload</span> = <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-title function_">jatekLoop</span>();
+};
+
+<span class="hljs-comment">// JÁTÉK LOOP (60 FPS)</span>
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">jatekLoop</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-comment">// 1. TÖRLÉS</span>
+    ctx.<span class="hljs-title function_">clearRect</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, canvas.<span class="hljs-property">width</span>, canvas.<span class="hljs-property">height</span>);
+
+    <span class="hljs-comment">// 2. FRISSÍTÉS</span>
+    urhajoX += sebesseg;
+    <span class="hljs-keyword">if</span> (urhajoX &gt; canvas.<span class="hljs-property">width</span>) {
+        urhajoX = -<span class="hljs-number">80</span>;
+    }
+
+    <span class="hljs-comment">// 3. RAJZOLÁS</span>
+    ctx.<span class="hljs-title function_">drawImage</span>(urhajoKep, urhajoX, urhajoY, <span class="hljs-number">80</span>, <span class="hljs-number">80</span>);
+
+    <span class="hljs-comment">// 4. KÖVETKEZŐ FRAME</span>
+    <span class="hljs-title function_">requestAnimationFrame</span>(jatekLoop);
+}
+</code></pre>
+<hr>
+<h2 id="3-fejezet--phaser-a-játékmotor-titkai">3. Fejezet – Phaser: A játékmotor titkai</h2>
+<h3 id="-mit-fogsz-megtanulni-3">🎯 Mit fogsz megtanulni?</h3>
+<p>Most jön a &quot;varázsrész&quot;! A Phaser egy profi játékmotor, ami automatizálja azt, amit az előbb kézzel csináltál.</p>
+<h3 id="31-miért-phaser-és-nem-tiszta-canvas">3.1 Miért Phaser és nem tiszta Canvas?</h3>
+<p><strong>Canvas problémái nagy játékoknál:</strong></p>
+<ul>
+<li>Képek betöltésének kezelése</li>
+<li>Sprite-ok pozíciójának tárolása</li>
+<li>Ütközésvizsgálat programozása</li>
+<li>Animációk kezelése (sprite sheet)</li>
+<li>Billentyűzet/egér események</li>
+<li>Hanglejátszás</li>
+<li>Fizika (gravitáció, sebesség)</li>
+</ul>
+<p><strong>Phaser előnyei:</strong></p>
+<ul>
+<li>Automatikus kép betöltés</li>
+<li>Sprite létrehozás 1 sorban</li>
+<li>Beépített ütközésvizsgálat</li>
+<li>Animációk egyszerűen</li>
+</ul>
+<h3 id="32-phaser-telepítése-cdn-módszer">3.2 Phaser telepítése (CDN módszer)</h3>
+<p><strong>index.html módosítása:</strong></p>
+<pre><code class="language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">&quot;hu&quot;</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">&quot;UTF-8&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>🚀 Űrhajós Játék<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.js&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;main.js&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
+</code></pre>
+<h3 id="33-phaser-alap-sablon---részletesen-magyarázva">3.3 Phaser alap sablon - RÉSZLETESEN magyarázva</h3>
+<pre><code class="language-javascript"><span class="hljs-comment">// ===================================</span>
+<span class="hljs-comment">// PHASER KONFIGURÁCIÓ</span>
+<span class="hljs-comment">// ===================================</span>
+<span class="hljs-keyword">const</span> config = {
+    <span class="hljs-attr">type</span>: <span class="hljs-title class_">Phaser</span>.<span class="hljs-property">AUTO</span>,
+    <span class="hljs-attr">width</span>: <span class="hljs-number">800</span>,
+    <span class="hljs-attr">height</span>: <span class="hljs-number">600</span>,
+    <span class="hljs-attr">backgroundColor</span>: <span class="hljs-string">&#x27;#000033&#x27;</span>,
+    <span class="hljs-attr">physics</span>: {
+        <span class="hljs-attr">default</span>: <span class="hljs-string">&#x27;arcade&#x27;</span>,
+        <span class="hljs-attr">arcade</span>: {
+            <span class="hljs-attr">gravity</span>: { <span class="hljs-attr">y</span>: <span class="hljs-number">0</span> },
+            <span class="hljs-attr">debug</span>: <span class="hljs-literal">false</span>
+        }
+    },
+    <span class="hljs-attr">scene</span>: {
+        <span class="hljs-attr">preload</span>: preload,
+        <span class="hljs-attr">create</span>: create,
+        <span class="hljs-attr">update</span>: update
+    }
+};
+
+<span class="hljs-keyword">const</span> game = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Phaser</span>.<span class="hljs-title class_">Game</span>(config);
+
+<span class="hljs-comment">// ===================================</span>
+<span class="hljs-comment">// GLOBÁLIS VÁLTOZÓK</span>
+<span class="hljs-comment">// ===================================</span>
+<span class="hljs-keyword">let</span> urhajo;
+<span class="hljs-keyword">let</span> cursors;
+<span class="hljs-keyword">let</span> lovedekek;
+<span class="hljs-keyword">let</span> ellenfelek;
+<span class="hljs-keyword">let</span> pontszam = <span class="hljs-number">0</span>;
+<span class="hljs-keyword">let</span> pontszamSzoveg;
+
+<span class="hljs-comment">// ===================================</span>
+<span class="hljs-comment">// 1. PRELOAD - Erőforrások betöltése</span>
+<span class="hljs-comment">// ===================================</span>
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">preload</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;📦 Erőforrások betöltése...&quot;</span>);
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">load</span>.<span class="hljs-title function_">image</span>(<span class="hljs-string">&#x27;urhajo&#x27;</span>, <span class="hljs-string">&#x27;assets/images/urhajo.png&#x27;</span>);
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">load</span>.<span class="hljs-title function_">image</span>(<span class="hljs-string">&#x27;meteor&#x27;</span>, <span class="hljs-string">&#x27;assets/images/meteor.png&#x27;</span>);
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">load</span>.<span class="hljs-title function_">image</span>(<span class="hljs-string">&#x27;laser&#x27;</span>, <span class="hljs-string">&#x27;assets/images/laser.png&#x27;</span>);
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">load</span>.<span class="hljs-title function_">audio</span>(<span class="hljs-string">&#x27;shoot&#x27;</span>, <span class="hljs-string">&#x27;assets/sounds/laser.mp3&#x27;</span>);
+}
+
+<span class="hljs-comment">// ===================================</span>
+<span class="hljs-comment">// 2. CREATE - Játék inicializálása</span>
+<span class="hljs-comment">// ===================================</span>
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">create</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;🎮 Játék létrehozása...&quot;</span>);
+
+    <span class="hljs-comment">// Űrhajó sprite létrehozása</span>
+    urhajo = <span class="hljs-variable language_">this</span>.<span class="hljs-property">physics</span>.<span class="hljs-property">add</span>.<span class="hljs-title function_">sprite</span>(<span class="hljs-number">400</span>, <span class="hljs-number">500</span>, <span class="hljs-string">&#x27;urhajo&#x27;</span>);
+    urhajo.<span class="hljs-title function_">setCollideWorldBounds</span>(<span class="hljs-literal">true</span>);
+
+    <span class="hljs-comment">// Billentyűzet kezelés</span>
+    cursors = <span class="hljs-variable language_">this</span>.<span class="hljs-property">input</span>.<span class="hljs-property">keyboard</span>.<span class="hljs-title function_">createCursorKeys</span>();
+
+    <span class="hljs-comment">// Lövedékek csoport</span>
+    lovedekek = <span class="hljs-variable language_">this</span>.<span class="hljs-property">physics</span>.<span class="hljs-property">add</span>.<span class="hljs-title function_">group</span>();
+
+    <span class="hljs-comment">// Ellenségek csoport</span>
+    ellenfelek = <span class="hljs-variable language_">this</span>.<span class="hljs-property">physics</span>.<span class="hljs-property">add</span>.<span class="hljs-title function_">group</span>();
+
+    <span class="hljs-comment">// Pontszám szöveg</span>
+    pontszamSzoveg = <span class="hljs-variable language_">this</span>.<span class="hljs-property">add</span>.<span class="hljs-title function_">text</span>(<span class="hljs-number">16</span>, <span class="hljs-number">16</span>, <span class="hljs-string">&#x27;Pont: 0&#x27;</span>, {
+        <span class="hljs-attr">fontSize</span>: <span class="hljs-string">&#x27;32px&#x27;</span>,
+        <span class="hljs-attr">fill</span>: <span class="hljs-string">&#x27;#fff&#x27;</span>
+    });
+
+    <span class="hljs-comment">// SPACE billentyű lövéshez</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">input</span>.<span class="hljs-property">keyboard</span>.<span class="hljs-title function_">on</span>(<span class="hljs-string">&#x27;keydown-SPACE&#x27;</span>, loves, <span class="hljs-variable language_">this</span>);
+
+    <span class="hljs-comment">// Ellenség generálás időzítővel</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">time</span>.<span class="hljs-title function_">addEvent</span>({
+        <span class="hljs-attr">delay</span>: <span class="hljs-number">2000</span>,
+        <span class="hljs-attr">callback</span>: ujEllenseg,
+        <span class="hljs-attr">callbackScope</span>: <span class="hljs-variable language_">this</span>,
+        <span class="hljs-attr">loop</span>: <span class="hljs-literal">true</span>
+    });
+
+    <span class="hljs-comment">// Ütközés beállítása</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">physics</span>.<span class="hljs-property">add</span>.<span class="hljs-title function_">overlap</span>(lovedekek, ellenfelek, utkozesLovedekEllenseg, <span class="hljs-literal">null</span>, <span class="hljs-variable language_">this</span>);
+}
+
+<span class="hljs-comment">// ===================================</span>
+<span class="hljs-comment">// 3. UPDATE - Minden frame-ben lefut</span>
+<span class="hljs-comment">// ===================================</span>
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">update</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-comment">// Űrhajó mozgatás</span>
+    <span class="hljs-keyword">if</span> (cursors.<span class="hljs-property">left</span>.<span class="hljs-property">isDown</span>) {
+        urhajo.<span class="hljs-title function_">setVelocityX</span>(-<span class="hljs-number">300</span>);
+    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (cursors.<span class="hljs-property">right</span>.<span class="hljs-property">isDown</span>) {
+        urhajo.<span class="hljs-title function_">setVelocityX</span>(<span class="hljs-number">300</span>);
+    } <span class="hljs-keyword">else</span> {
+        urhajo.<span class="hljs-title function_">setVelocityX</span>(<span class="hljs-number">0</span>);
+    }
+}
+
+<span class="hljs-comment">// ===================================</span>
+<span class="hljs-comment">// FÜGGVÉNYEK</span>
+<span class="hljs-comment">// ===================================</span>
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">loves</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-keyword">let</span> lovedek = lovedekek.<span class="hljs-title function_">create</span>(urhajo.<span class="hljs-property">x</span>, urhajo.<span class="hljs-property">y</span> - <span class="hljs-number">30</span>, <span class="hljs-string">&#x27;laser&#x27;</span>);
+    lovedek.<span class="hljs-title function_">setVelocityY</span>(-<span class="hljs-number">400</span>);
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">sound</span>.<span class="hljs-title function_">play</span>(<span class="hljs-string">&#x27;shoot&#x27;</span>);
+}
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">ujEllenseg</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-keyword">let</span> x = <span class="hljs-title class_">Phaser</span>.<span class="hljs-property">Math</span>.<span class="hljs-title class_">Between</span>(<span class="hljs-number">50</span>, <span class="hljs-number">750</span>);
+    <span class="hljs-keyword">let</span> ellenseg = ellenfelek.<span class="hljs-title function_">create</span>(x, <span class="hljs-number">0</span>, <span class="hljs-string">&#x27;meteor&#x27;</span>);
+    ellenseg.<span class="hljs-title function_">setVelocityY</span>(<span class="hljs-title class_">Phaser</span>.<span class="hljs-property">Math</span>.<span class="hljs-title class_">Between</span>(<span class="hljs-number">100</span>, <span class="hljs-number">300</span>));
+}
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">utkozesLovedekEllenseg</span>(<span class="hljs-params">lovedek, ellenseg</span>) {
+    lovedek.<span class="hljs-title function_">destroy</span>();
+    ellenseg.<span class="hljs-title function_">destroy</span>();
+    pontszam += <span class="hljs-number">10</span>;
+    pontszamSzoveg.<span class="hljs-title function_">setText</span>(<span class="hljs-string">&#x27;Pont: &#x27;</span> + pontszam);
+}
+</code></pre>
+<h3 id="34-sprite-mozgatása-billentyűzettel">3.4 Sprite mozgatása billentyűzettel</h3>
+<pre><code class="language-javascript"><span class="hljs-keyword">let</span> cursors;
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">create</span>(<span class="hljs-params"></span>) {
+    urhajo = <span class="hljs-variable language_">this</span>.<span class="hljs-property">add</span>.<span class="hljs-title function_">sprite</span>(<span class="hljs-number">400</span>, <span class="hljs-number">300</span>, <span class="hljs-string">&#x27;urhajo&#x27;</span>);
+    cursors = <span class="hljs-variable language_">this</span>.<span class="hljs-property">input</span>.<span class="hljs-property">keyboard</span>.<span class="hljs-title function_">createCursorKeys</span>();
+}
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">update</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-keyword">if</span> (cursors.<span class="hljs-property">left</span>.<span class="hljs-property">isDown</span>) {
+        urhajo.<span class="hljs-property">x</span> -= <span class="hljs-number">2</span>;
+    }
+    <span class="hljs-keyword">if</span> (cursors.<span class="hljs-property">right</span>.<span class="hljs-property">isDown</span>) {
+        urhajo.<span class="hljs-property">x</span> += <span class="hljs-number">2</span>;
+    }
+    <span class="hljs-keyword">if</span> (cursors.<span class="hljs-property">up</span>.<span class="hljs-property">isDown</span>) {
+        urhajo.<span class="hljs-property">y</span> -= <span class="hljs-number">2</span>;
+    }
+    <span class="hljs-keyword">if</span> (cursors.<span class="hljs-property">down</span>.<span class="hljs-property">isDown</span>) {
+        urhajo.<span class="hljs-property">y</span> += <span class="hljs-number">2</span>;
+    }
+}
+</code></pre>
+<h3 id="35-egér-események">3.5 Egér események</h3>
+<pre><code class="language-javascript"><span class="hljs-keyword">function</span> <span class="hljs-title function_">create</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">input</span>.<span class="hljs-title function_">on</span>(<span class="hljs-string">&#x27;pointerdown&#x27;</span>, <span class="hljs-keyword">function</span> (<span class="hljs-params">pointer</span>) {
+        urhajo.<span class="hljs-property">x</span> = pointer.<span class="hljs-property">x</span>;
+        urhajo.<span class="hljs-property">y</span> = pointer.<span class="hljs-property">y</span>;
+    });
+}
+</code></pre>
+<h3 id="36-forgatás">3.6 Forgatás</h3>
+<pre><code class="language-javascript"><span class="hljs-keyword">function</span> <span class="hljs-title function_">update</span>(<span class="hljs-params"></span>) {
+    urhajo.<span class="hljs-property">angle</span> += <span class="hljs-number">1</span>;
+}
+</code></pre>
+<hr>
+<h2 id="4-fejezet--életre-kelteni-a-játékot">4. Fejezet – Életre kelteni a játékot</h2>
+<h3 id="-mit-fogsz-megtanulni-4">🎯 Mit fogsz megtanulni?</h3>
+<p>Most az a rész jön, amikor a játékod igazán játszhatóvá válik: pontozás, ütközések, életkezelés!</p>
+<h3 id="41-pontozási-rendszer">4.1 Pontozási rendszer</h3>
+<pre><code class="language-javascript"><span class="hljs-keyword">let</span> pontszam = <span class="hljs-number">0</span>;
+<span class="hljs-keyword">let</span> pontszamSzoveg;
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">create</span>(<span class="hljs-params"></span>) {
+    pontszamSzoveg = <span class="hljs-variable language_">this</span>.<span class="hljs-property">add</span>.<span class="hljs-title function_">text</span>(<span class="hljs-number">16</span>, <span class="hljs-number">16</span>, <span class="hljs-string">&#x27;Pont: 0&#x27;</span>, {
+        <span class="hljs-attr">fontSize</span>: <span class="hljs-string">&#x27;32px&#x27;</span>,
+        <span class="hljs-attr">fill</span>: <span class="hljs-string">&#x27;#fff&#x27;</span>
+    });
+}
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">noveljPontot</span>(<span class="hljs-params">mennyit</span>) {
+    pontszam += mennyit;
+    pontszamSzoveg.<span class="hljs-title function_">setText</span>(<span class="hljs-string">&#x27;Pont: &#x27;</span> + pontszam);
+}
+</code></pre>
+<h3 id="42-életkezelés">4.2 Életkezelés</h3>
+<pre><code class="language-javascript"><span class="hljs-keyword">let</span> elet = <span class="hljs-number">3</span>;
+<span class="hljs-keyword">let</span> eletIkonok = [];
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">create</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">3</span>; i++) {
+        <span class="hljs-keyword">let</span> ikon = <span class="hljs-variable language_">this</span>.<span class="hljs-property">add</span>.<span class="hljs-title function_">image</span>(<span class="hljs-number">700</span> + (i * <span class="hljs-number">35</span>), <span class="hljs-number">30</span>, <span class="hljs-string">&#x27;sziv&#x27;</span>);
+        eletIkonok.<span class="hljs-title function_">push</span>(ikon);
+    }
+}
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">vesztettEletet</span>(<span class="hljs-params"></span>) {
+    elet--;
+    <span class="hljs-keyword">if</span> (elet &gt;= <span class="hljs-number">0</span>) {
+        eletIkonok[elet].<span class="hljs-title function_">setAlpha</span>(<span class="hljs-number">0.3</span>);
+    }
+    <span class="hljs-keyword">if</span> (elet &lt;= <span class="hljs-number">0</span>) {
+        <span class="hljs-title function_">jatekVege</span>();
+    }
+}
+</code></pre>
+<h3 id="43-ütközésvizsgálat">4.3 Ütközésvizsgálat</h3>
+<pre><code class="language-javascript"><span class="hljs-keyword">function</span> <span class="hljs-title function_">create</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">physics</span>.<span class="hljs-property">add</span>.<span class="hljs-title function_">overlap</span>(urhajo, ellenfelek, urhajoTalalat, <span class="hljs-literal">null</span>, <span class="hljs-variable language_">this</span>);
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">physics</span>.<span class="hljs-property">add</span>.<span class="hljs-title function_">overlap</span>(lovedekek, ellenfelek, lovedekTalalat, <span class="hljs-literal">null</span>, <span class="hljs-variable language_">this</span>);
+}
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">urhajoTalalat</span>(<span class="hljs-params">urhajo, ellenseg</span>) {
+    ellenseg.<span class="hljs-title function_">destroy</span>();
+    <span class="hljs-title function_">vesztettEletet</span>();
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">cameras</span>.<span class="hljs-property">main</span>.<span class="hljs-title function_">shake</span>(<span class="hljs-number">200</span>);
+}
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">lovedekTalalat</span>(<span class="hljs-params">lovedek, ellenseg</span>) {
+    lovedek.<span class="hljs-title function_">destroy</span>();
+    ellenseg.<span class="hljs-title function_">destroy</span>();
+    <span class="hljs-title function_">noveljPontot</span>(<span class="hljs-number">10</span>);
+}
+</code></pre>
+<h3 id="44-game-over-és-restart">4.4 Game Over és Restart</h3>
+<pre><code class="language-javascript"><span class="hljs-keyword">function</span> <span class="hljs-title function_">jatekVege</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">physics</span>.<span class="hljs-title function_">pause</span>();
+
+    <span class="hljs-keyword">let</span> gameOverText = <span class="hljs-variable language_">this</span>.<span class="hljs-property">add</span>.<span class="hljs-title function_">text</span>(<span class="hljs-number">400</span>, <span class="hljs-number">300</span>, <span class="hljs-string">&#x27;GAME OVER\n\nPont: &#x27;</span> + pontszam, {
+        <span class="hljs-attr">fontSize</span>: <span class="hljs-string">&#x27;48px&#x27;</span>,
+        <span class="hljs-attr">fill</span>: <span class="hljs-string">&#x27;#f00&#x27;</span>,
+        <span class="hljs-attr">align</span>: <span class="hljs-string">&#x27;center&#x27;</span>
+    });
+    gameOverText.<span class="hljs-title function_">setOrigin</span>(<span class="hljs-number">0.5</span>);
+
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">input</span>.<span class="hljs-property">keyboard</span>.<span class="hljs-title function_">once</span>(<span class="hljs-string">&#x27;keydown-ENTER&#x27;</span>, <span class="hljs-function">() =&gt;</span> {
+        <span class="hljs-variable language_">this</span>.<span class="hljs-property">scene</span>.<span class="hljs-title function_">restart</span>();
+        pontszam = <span class="hljs-number">0</span>;
+        elet = <span class="hljs-number">3</span>;
+    });
+}
+</code></pre>
+<hr>
+<h2 id="5-fejezet--ai-a-titkos-fegyvered">5. Fejezet – AI: A titkos fegyvered</h2>
+<h3 id="-mit-fogsz-megtanulni-5">🎯 Mit fogsz megtanulni?</h3>
+<p>Az AI-t OKOSAN kell használni a versenyen. Itt megtanulod hogyan!</p>
+<h3 id="51-ai-asszisztensek-a-versenyen">5.1 AI asszisztensek a versenyen</h3>
+<p><strong>Megengedett eszközök:</strong></p>
+<ul>
+<li>ChatGPT (<a href="http://chat.openai.com">chat.openai.com</a>)</li>
+<li>Claude (<a href="http://claude.ai">claude.ai</a>)</li>
+<li>GitHub Copilot</li>
+</ul>
+<p><strong>Szabályok:</strong></p>
+<ul>
+<li>Az AI segíthet ötletelésben, magyarázatban, hibakeresésben</li>
+<li>A végső kódot ÉRTENED KELL</li>
+<li>Dokumentáld, miben segített az AI</li>
+</ul>
+<h3 id="52-hogyan-kérdezz-jól">5.2 Hogyan kérdezz JÓL?</h3>
+<p><strong>❌ ROSSZ prompt:</strong></p>
+<pre><code>&quot;Írj nekem egy űrhajós játékot&quot;
+</code></pre>
+<p><strong>✅ JÓ prompt:</strong></p>
+<pre><code>&quot;Segíts írni egy Phaser 3 függvényt, ami:
+- Generál egy véletlen pozícióban meteor sprite-ot
+- A meteor lefelé mozog véletlen sebességgel (100-300 px/s)
+- Ha kimegy a képernyőből alul, törlődik&quot;
+</code></pre>
+<h3 id="53-ai-szerepek-projektben">5.3 AI szerepek projektben</h3>
+<p><strong>1. ÖTLETGENERÁTOR</strong></p>
+<pre><code>Prompt: &quot;Adj 10 kreatív power-up ötletet egy űrhajós játékhoz&quot;
+</code></pre>
+<p><strong>2. KÓDMAGYARÁZÓ</strong></p>
+<pre><code>Prompt: &quot;Mit csinál ez a kód soronként?
+this.physics.add.overlap(bullets, enemies, hitEnemy, null, this);&quot;
+</code></pre>
+<p><strong>3. HIBAKERESŐ</strong></p>
+<pre><code>Prompt: &quot;Debug segítség:
+Probléma: A sprite nem jelenik meg
+Kód: [ide másold a kódot]
+Console: [ide a hibaüzenetet]&quot;
+</code></pre>
+<h3 id="54-ai-napló-sablon">5.4 AI-NAPLÓ SABLON</h3>
+<pre><code class="language-markdown"><span class="hljs-section">## AI Segítség Dokumentáció</span>
+
+<span class="hljs-section">### Miben segített az AI?</span>
+
+<span class="hljs-strong">**1. Ötletelés (dátum)**</span>
+<span class="hljs-bullet">-</span> Prompt: &quot;...&quot;
+<span class="hljs-bullet">-</span> Eredmény: ...
+<span class="hljs-bullet">-</span> Felhasználás: ...
+
+<span class="hljs-strong">**2. Fizika probléma (dátum)**</span>
+<span class="hljs-bullet">-</span> Probléma: ...
+<span class="hljs-bullet">-</span> Megoldás: ...
+
+<span class="hljs-section">### Mit tanultam?</span>
+<span class="hljs-bullet">-</span> ...
+
+<span class="hljs-section">### Amit MAGAM oldottam meg:</span>
+<span class="hljs-bullet">-</span> ...
+</code></pre>
+<hr>
+<h2 id="6-fejezet--csapatmunka-github-bal">6. Fejezet – Csapatmunka GitHub-bal</h2>
+<h3 id="-mit-fogsz-megtanulni-6">🎯 Mit fogsz megtanulni?</h3>
+<p>A 4 fős csapat hogyan dolgozhat egyszerre úgy, hogy ne legyen káosz!</p>
+<h3 id="61-arany-szabály">6.1 ARANY SZABÁLY</h3>
+<p><strong>Soha ne dolgozz közvetlenül a <code>main</code> ágon!</strong></p>
+<h3 id="62-workflow-lépésről-lépésre">6.2 Workflow lépésről lépésre</h3>
+<p><strong>1. PROJEKT INDÍTÁS (1 fő)</strong></p>
+<pre><code>GitHub Desktop:
+File → New Repository
+Name: urhajo-jatek
+Initialize with README
+Create Repository
+</code></pre>
+<p><strong>2. MUNKAMENET KEZDÉSE (MINDENKI!)</strong></p>
+<pre><code>1. Fetch origin (frissítés)
+2. Current Branch: main
+3. Branch → New Branch
+4. Name: &quot;sajat-neved-feature&quot;
+5. Create Branch
+</code></pre>
+<p><strong>3. FEJLESZTÉS</strong></p>
+<ul>
+<li>Kódolás</li>
+<li>Mentés (Ctrl+S)</li>
+<li>Tesztelés</li>
+</ul>
+<p><strong>4. COMMIT</strong></p>
+<pre><code>GitHub Desktop:
+Summary: &quot;Mit csináltál?&quot;
+Commit to [ágad neve]
+</code></pre>
+<p><strong>5. PUSH</strong></p>
+<pre><code>Publish branch (első alkalom)
+vagy
+Push origin
+</code></pre>
+<p><strong>6. PULL REQUEST</strong></p>
+<pre><code>Branch → Create Pull Request
+GitHub weboldalon:
+- Title: &quot;...&quot;
+- Description: &quot;...&quot;
+- Reviewers: csapattársak
+- Create Pull Request
+</code></pre>
+<p><strong>7. CODE REVIEW</strong></p>
+<ul>
+<li>Csapattársak nézik át</li>
+<li>Ha jó: Merge</li>
+<li>Ha probléma: módosítás kérése</li>
+</ul>
+<p><strong>8. SZINKRONIZÁLÁS (MINDENKI!)</strong></p>
+<pre><code>1. Válts vissza main ágra
+2. Fetch origin
+3. Pull origin
+</code></pre>
+<hr>
+<h2 id="7-fejezet--játékfejlesztési-stratégiák">7. Fejezet – Játékfejlesztési stratégiák</h2>
+<h3 id="-mvp-minimum-viable-product">🎯 MVP (Minimum Viable Product)</h3>
+<p><strong>Mit KELL tartalmaznia 1. nap végére?</strong></p>
+<p>✅ Működő Phaser setup
+✅ Űrhajó mozog
+✅ Űrhajó tud lőni
+✅ 1 fajta ellenség
+✅ Ütközés működik
+✅ Pontszám számolódik</p>
+<h3 id="71-időgazdálkodás">7.1 Időgazdálkodás</h3>
+<p><strong>3 napos verseny:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Idő</th>
+<th>Feladat</th>
+<th>Kész %</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. nap 12:00</td>
+<td>MVP működik</td>
+<td>40%</td>
+</tr>
+<tr>
+<td>1. nap 17:00</td>
+<td>Ellenségek + ütközés</td>
+<td>60%</td>
+</tr>
+<tr>
+<td>2. nap 12:00</td>
+<td>Power-up + hang</td>
+<td>75%</td>
+</tr>
+<tr>
+<td>2. nap 17:00</td>
+<td>Szintek + polish</td>
+<td>85%</td>
+</tr>
+<tr>
+<td>3. nap 12:00</td>
+<td>Bugfix</td>
+<td>95%</td>
+</tr>
+<tr>
+<td>3. nap 15:00</td>
+<td>README, prezentáció</td>
+<td>100%</td>
+</tr>
+</tbody>
+</table>
+<h3 id="72-feature-priority">7.2 Feature priority</h3>
+<p><strong>Prioritás 1 (KELL):</strong></p>
+<ul>
+<li>Több ellenség típus</li>
+<li>Élet rendszer</li>
+<li>Game Over</li>
+<li>Restart</li>
+<li>Szint rendszer</li>
+</ul>
+<p><strong>Prioritás 2 (FONTOS):</strong></p>
+<ul>
+<li>Power-upok</li>
+<li>Hangeffektek</li>
+<li>Particle effektek</li>
+<li>High score</li>
+</ul>
+<p><strong>Prioritás 3 (NICE TO HAVE):</strong></p>
+<ul>
+<li>Menü</li>
+<li>Több pálya</li>
+<li>Boss</li>
+<li>Teljes történet</li>
+</ul>
+<hr>
+<h2 id="8-fejezet--versenyfelkészítő-tippek">8. Fejezet – Versenyfelkészítő tippek</h2>
+<h3 id="81-amit-a-bírák-szeretnek">8.1 Amit a bírák szeretnek</h3>
+<p>✅ Egyedi játékmechanika
+✅ Smooth animációk
+✅ Jó hangok
+✅ Particle effektek
+✅ Skálázható nehézség
+✅ Tiszta kód
+✅ Jó README</p>
+<h3 id="82-amit-kerülj-el">8.2 Amit kerülj el</h3>
+<p>❌ Feature creep (100 ötlet, egyik sem működik)
+❌ Túl nehéz/könnyű
+❌ Rossz optimalizáció (60 FPS alatt)
+❌ Bugos állapot
+❌ Copyright probléma</p>
+<h3 id="83-free-asset-források">8.3 Free asset források</h3>
+<p><strong>Grafika:</strong></p>
+<ul>
+<li><a href="http://OpenGameArt.org">OpenGameArt.org</a></li>
+<li><a href="http://Kenney.nl">Kenney.nl</a></li>
+<li><a href="http://itch.io">itch.io</a></li>
+</ul>
+<p><strong>Hangok:</strong></p>
+<ul>
+<li><a href="http://Freesound.org">Freesound.org</a></li>
+<li><a href="http://ZapSplat.com">ZapSplat.com</a></li>
+</ul>
+<p><strong>Vagy használje erre is AI-t:</strong></p>
+<ul>
+<li>zene -&gt; Suno: <a href="https://app.suno.ai/create/">https://app.suno.ai/create/</a></li>
+<li>kép -&gt; DALL·E: <a href="https://openai.com/index/dall-e-3/">https://openai.com/index/dall-e-3/</a>, <a href="https://leonardo.ai/">https://leonardo.ai/</a></li>
+<li>hang -&gt; ElevenLabs: <a href="https://elevenlabs.io/">https://elevenlabs.io/</a></li>
+</ul>
+<h3 id="84-prezentáció">8.4 Prezentáció</h3>
+<p><strong>5 perces struktúra:</strong></p>
+<ol>
+<li><strong>Intro (30s)</strong> - &quot;Sziasztok! Mi vagyunk...&quot;</li>
+<li><strong>Demo (2 perc)</strong> - Játszd le ÉLŐBEN!</li>
+<li><strong>Technikai háttér (1.5 perc)</strong> - Phaser 3, GitHub, AI</li>
+<li><strong>Challenges (1 perc)</strong> - Legnagyobb kihívás és megoldás</li>
+<li><strong>Q&amp;A (30s)</strong> - Kérdések</li>
+</ol>
+<hr>
+<h2 id="9-fejezet--cheatsheet-puska">9. Fejezet – CheatSheet (Puska)</h2>
+<h3 id="javascript-alapok">JavaScript alapok</h3>
+<pre><code class="language-javascript"><span class="hljs-comment">// ===== VÁLTOZÓK =====</span>
+<span class="hljs-keyword">let</span> x = <span class="hljs-number">10</span>;                    <span class="hljs-comment">// Változtatható</span>
+<span class="hljs-keyword">const</span> Á<span class="hljs-variable constant_">LLAND</span>Ó = <span class="hljs-number">100</span>;           <span class="hljs-comment">// Nem változtatható</span>
+<span class="hljs-keyword">var</span> regi = <span class="hljs-number">5</span>;                  <span class="hljs-comment">// NE HASZNÁLD (régi stílus)</span>
+
+<span class="hljs-comment">// ===== ADATTÍPUSOK =====</span>
+<span class="hljs-keyword">let</span> szoveg = <span class="hljs-string">&quot;Hello&quot;</span>;
+<span class="hljs-keyword">let</span> szam = <span class="hljs-number">42</span>;
+<span class="hljs-keyword">let</span> logikai = <span class="hljs-literal">true</span>;
+<span class="hljs-keyword">let</span> tomb = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>];
+<span class="hljs-keyword">let</span> objektum = { <span class="hljs-attr">x</span>: <span class="hljs-number">10</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">20</span> };
+<span class="hljs-keyword">let</span> ures = <span class="hljs-literal">null</span>;
+<span class="hljs-keyword">let</span> nincs = <span class="hljs-literal">undefined</span>;
+
+<span class="hljs-comment">// ===== TÖMB MŰVELETEK =====</span>
+<span class="hljs-keyword">let</span> t = [<span class="hljs-number">10</span>, <span class="hljs-number">20</span>, <span class="hljs-number">30</span>];
+t.<span class="hljs-title function_">push</span>(<span class="hljs-number">40</span>);                    <span class="hljs-comment">// Hozzáad a végére → [10,20,30,40]</span>
+t.<span class="hljs-title function_">pop</span>();                       <span class="hljs-comment">// Törli az utolsót → [10,20,30]</span>
+t.<span class="hljs-title function_">shift</span>();                     <span class="hljs-comment">// Törli az elsőt → [20,30]</span>
+t.<span class="hljs-title function_">unshift</span>(<span class="hljs-number">5</span>);                  <span class="hljs-comment">// Hozzáad elejére → [5,20,30]</span>
+t.<span class="hljs-property">length</span>;                      <span class="hljs-comment">// Elemek száma → 3</span>
+t[<span class="hljs-number">0</span>];                          <span class="hljs-comment">// Első elem → 5</span>
+t.<span class="hljs-title function_">forEach</span>(<span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(x));<span class="hljs-comment">// Végigmegy mindenen</span>
+
+<span class="hljs-comment">// ===== OBJEKTUM MŰVELETEK =====</span>
+<span class="hljs-keyword">let</span> obj = { <span class="hljs-attr">nev</span>: <span class="hljs-string">&quot;Űrhajó&quot;</span>, <span class="hljs-attr">elet</span>: <span class="hljs-number">100</span> };
+obj.<span class="hljs-property">nev</span>;                       <span class="hljs-comment">// &quot;Űrhajó&quot;</span>
+obj[<span class="hljs-string">&quot;nev&quot;</span>];                    <span class="hljs-comment">// &quot;Űrhajó&quot; (alternatív)</span>
+obj.<span class="hljs-property">pajzs</span> = <span class="hljs-number">50</span>;                <span class="hljs-comment">// Új property hozzáadása</span>
+<span class="hljs-keyword">delete</span> obj.<span class="hljs-property">pajzs</span>;              <span class="hljs-comment">// Property törlése</span>
+
+<span class="hljs-comment">// ===== FELTÉTELEK =====</span>
+<span class="hljs-keyword">if</span> (x &gt; <span class="hljs-number">5</span>) {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Nagy&quot;</span>);
+} <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (x &gt; <span class="hljs-number">0</span>) {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Kicsi&quot;</span>);
+} <span class="hljs-keyword">else</span> {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Nulla vagy negatív&quot;</span>);
+}
+
+<span class="hljs-comment">// Ternary operator (rövid if)</span>
+<span class="hljs-keyword">let</span> eredmeny = (x &gt; <span class="hljs-number">5</span>) ? <span class="hljs-string">&quot;Nagy&quot;</span> : <span class="hljs-string">&quot;Kicsi&quot;</span>;
+
+<span class="hljs-comment">// Switch</span>
+<span class="hljs-keyword">switch</span>(x) {
+    <span class="hljs-keyword">case</span> <span class="hljs-number">1</span>: <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Egy&quot;</span>); <span class="hljs-keyword">break</span>;
+    <span class="hljs-keyword">case</span> <span class="hljs-number">2</span>: <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Kettő&quot;</span>); <span class="hljs-keyword">break</span>;
+    <span class="hljs-attr">default</span>: <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Más&quot;</span>);
+}
+
+<span class="hljs-comment">// ===== CIKLUSOK =====</span>
+<span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10</span>; i++) { }          <span class="hljs-comment">// Klasszikus for</span>
+<span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> elem <span class="hljs-keyword">of</span> tomb) { }                <span class="hljs-comment">// Tömb elemein végigmegy</span>
+<span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> index <span class="hljs-keyword">in</span> tomb) { }               <span class="hljs-comment">// Indexeken megy végig</span>
+tomb.<span class="hljs-title function_">forEach</span>(<span class="hljs-function"><span class="hljs-params">elem</span> =&gt;</span> { });                <span class="hljs-comment">// Modern forEach</span>
+
+<span class="hljs-keyword">while</span> (x &lt; <span class="hljs-number">10</span>) { x++; }                   <span class="hljs-comment">// While ciklus</span>
+<span class="hljs-keyword">do</span> { x++; } <span class="hljs-keyword">while</span> (x &lt; <span class="hljs-number">10</span>);               <span class="hljs-comment">// Do-while (min 1x lefut)</span>
+
+<span class="hljs-comment">// ===== FÜGGVÉNYEK =====</span>
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">osszeadas</span>(<span class="hljs-params">a, b</span>) {
+    <span class="hljs-keyword">return</span> a + b;
+}
+
+<span class="hljs-comment">// Arrow function (modern)</span>
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">szorzas</span> = (<span class="hljs-params">a, b</span>) =&gt; a * b;
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">negyzet</span> = x =&gt; x * x;               <span class="hljs-comment">// 1 paraméter, nem kell ()</span>
+
+<span class="hljs-comment">// Callback függvény</span>
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">csinalValamit</span>(<span class="hljs-params">callback</span>) {
+    <span class="hljs-title function_">callback</span>();
+}
+<span class="hljs-title function_">csinalValamit</span>(<span class="hljs-function">() =&gt;</span> <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Kész!&quot;</span>));
+
+<span class="hljs-comment">// ===== STRING MŰVELETEK =====</span>
+<span class="hljs-keyword">let</span> s = <span class="hljs-string">&quot;Hello World&quot;</span>;
+s.<span class="hljs-property">length</span>;                      <span class="hljs-comment">// 11</span>
+s.<span class="hljs-title function_">toUpperCase</span>();              <span class="hljs-comment">// &quot;HELLO WORLD&quot;</span>
+s.<span class="hljs-title function_">toLowerCase</span>();              <span class="hljs-comment">// &quot;hello world&quot;</span>
+s.<span class="hljs-title function_">includes</span>(<span class="hljs-string">&quot;World&quot;</span>);          <span class="hljs-comment">// true</span>
+s.<span class="hljs-title function_">split</span>(<span class="hljs-string">&quot; &quot;</span>);                 <span class="hljs-comment">// [&quot;Hello&quot;, &quot;World&quot;]</span>
+s.<span class="hljs-title function_">substring</span>(<span class="hljs-number">0</span>, <span class="hljs-number">5</span>);            <span class="hljs-comment">// &quot;Hello&quot;</span>
+s.<span class="hljs-title function_">replace</span>(<span class="hljs-string">&quot;World&quot;</span>, <span class="hljs-string">&quot;JS&quot;</span>);     <span class="hljs-comment">// &quot;Hello JS&quot;</span>
+
+<span class="hljs-comment">// Template literal (backtick)</span>
+<span class="hljs-keyword">let</span> nev = <span class="hljs-string">&quot;Bence&quot;</span>;
+<span class="hljs-keyword">let</span> uzenet = <span class="hljs-string">`Szia <span class="hljs-subst">${nev}</span>!`</span>;  <span class="hljs-comment">// &quot;Szia Bence!&quot;</span>
+
+<span class="hljs-comment">// ===== MATEMATIKA =====</span>
+<span class="hljs-title class_">Math</span>.<span class="hljs-title function_">floor</span>(<span class="hljs-number">4.7</span>);              <span class="hljs-comment">// 4 (lefelé kerekít)</span>
+<span class="hljs-title class_">Math</span>.<span class="hljs-title function_">ceil</span>(<span class="hljs-number">4.3</span>);               <span class="hljs-comment">// 5 (felfelé kerekít)</span>
+<span class="hljs-title class_">Math</span>.<span class="hljs-title function_">round</span>(<span class="hljs-number">4.5</span>);              <span class="hljs-comment">// 5 (normál kerekítés)</span>
+<span class="hljs-title class_">Math</span>.<span class="hljs-title function_">abs</span>(-<span class="hljs-number">5</span>);                 <span class="hljs-comment">// 5 (abszolút érték)</span>
+<span class="hljs-title class_">Math</span>.<span class="hljs-title function_">max</span>(<span class="hljs-number">1</span>, <span class="hljs-number">5</span>, <span class="hljs-number">3</span>);            <span class="hljs-comment">// 5</span>
+<span class="hljs-title class_">Math</span>.<span class="hljs-title function_">min</span>(<span class="hljs-number">1</span>, <span class="hljs-number">5</span>, <span class="hljs-number">3</span>);            <span class="hljs-comment">// 1</span>
+<span class="hljs-title class_">Math</span>.<span class="hljs-title function_">pow</span>(<span class="hljs-number">2</span>, <span class="hljs-number">3</span>);               <span class="hljs-comment">// 8 (2^3)</span>
+<span class="hljs-title class_">Math</span>.<span class="hljs-title function_">sqrt</span>(<span class="hljs-number">16</span>);                <span class="hljs-comment">// 4 (négyzetgyök)</span>
+<span class="hljs-title class_">Math</span>.<span class="hljs-title function_">random</span>();                <span class="hljs-comment">// 0 és 1 között véletlen</span>
+<span class="hljs-title class_">Math</span>.<span class="hljs-property">PI</span>;                      <span class="hljs-comment">// 3.14159...</span>
+</code></pre>
+<hr>
+<h3 id="phaser-3---teljes-referencia">Phaser 3 - Teljes referencia</h3>
+<pre><code class="language-javascript"><span class="hljs-comment">// ===== KONFIGURÁCIÓ =====</span>
+<span class="hljs-keyword">const</span> config = {
+    <span class="hljs-attr">type</span>: <span class="hljs-title class_">Phaser</span>.<span class="hljs-property">AUTO</span>,              <span class="hljs-comment">// WebGL vagy Canvas</span>
+    <span class="hljs-attr">width</span>: <span class="hljs-number">800</span>,
+    <span class="hljs-attr">height</span>: <span class="hljs-number">600</span>,
+    <span class="hljs-attr">backgroundColor</span>: <span class="hljs-string">&#x27;#000033&#x27;</span>,
+    <span class="hljs-attr">parent</span>: <span class="hljs-string">&#x27;game-container&#x27;</span>,       <span class="hljs-comment">// HTML elem ID</span>
+    <span class="hljs-attr">physics</span>: {
+        <span class="hljs-attr">default</span>: <span class="hljs-string">&#x27;arcade&#x27;</span>,
+        <span class="hljs-attr">arcade</span>: {
+            <span class="hljs-attr">gravity</span>: { <span class="hljs-attr">y</span>: <span class="hljs-number">0</span> },
+            <span class="hljs-attr">debug</span>: <span class="hljs-literal">false</span>            <span class="hljs-comment">// true = láthatók a fizikai testek</span>
+        }
+    },
+    <span class="hljs-attr">scale</span>: {
+        <span class="hljs-attr">mode</span>: <span class="hljs-title class_">Phaser</span>.<span class="hljs-property">Scale</span>.<span class="hljs-property">FIT</span>,     <span class="hljs-comment">// Automatikus skálázás</span>
+        <span class="hljs-attr">autoCenter</span>: <span class="hljs-title class_">Phaser</span>.<span class="hljs-property">Scale</span>.<span class="hljs-property">CENTER_BOTH</span>
+    },
+    <span class="hljs-attr">scene</span>: {
+        <span class="hljs-attr">preload</span>: preload,
+        <span class="hljs-attr">create</span>: create,
+        <span class="hljs-attr">update</span>: update
+    }
+};
+
+<span class="hljs-keyword">const</span> game = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Phaser</span>.<span class="hljs-title class_">Game</span>(config);
+
+<span class="hljs-comment">// ===== PRELOAD - Fájlok betöltése =====</span>
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">preload</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-comment">// Képek</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">load</span>.<span class="hljs-title function_">image</span>(<span class="hljs-string">&#x27;key&#x27;</span>, <span class="hljs-string">&#x27;path/to/image.png&#x27;</span>);
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">load</span>.<span class="hljs-title function_">image</span>(<span class="hljs-string">&#x27;bg&#x27;</span>, <span class="hljs-string">&#x27;assets/background.jpg&#x27;</span>);
+
+    <span class="hljs-comment">// Sprite sheet (animációhoz)</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">load</span>.<span class="hljs-title function_">spritesheet</span>(<span class="hljs-string">&#x27;player&#x27;</span>, <span class="hljs-string">&#x27;player.png&#x27;</span>, {
+        <span class="hljs-attr">frameWidth</span>: <span class="hljs-number">32</span>,
+        <span class="hljs-attr">frameHeight</span>: <span class="hljs-number">48</span>
+    });
+
+    <span class="hljs-comment">// Hangok</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">load</span>.<span class="hljs-title function_">audio</span>(<span class="hljs-string">&#x27;music&#x27;</span>, <span class="hljs-string">&#x27;music.mp3&#x27;</span>);
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">load</span>.<span class="hljs-title function_">audio</span>(<span class="hljs-string">&#x27;sfx&#x27;</span>, [<span class="hljs-string">&#x27;sound.mp3&#x27;</span>, <span class="hljs-string">&#x27;sound.ogg&#x27;</span>]); <span class="hljs-comment">// Több formátum</span>
+
+    <span class="hljs-comment">// JSON</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">load</span>.<span class="hljs-title function_">json</span>(<span class="hljs-string">&#x27;level&#x27;</span>, <span class="hljs-string">&#x27;level1.json&#x27;</span>);
+
+    <span class="hljs-comment">// Betöltési progress bar</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">load</span>.<span class="hljs-title function_">on</span>(<span class="hljs-string">&#x27;progress&#x27;</span>, <span class="hljs-function">(<span class="hljs-params">value</span>) =&gt;</span> {
+        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&#x27;Betöltés:&#x27;</span>, <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">round</span>(value * <span class="hljs-number">100</span>) + <span class="hljs-string">&#x27;%&#x27;</span>);
+    });
+}
+
+<span class="hljs-comment">// ===== CREATE - Játék inicializálása =====</span>
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">create</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-comment">// ----- KÉPEK ÉS SPRITE-OK -----</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">add</span>.<span class="hljs-title function_">image</span>(<span class="hljs-number">400</span>, <span class="hljs-number">300</span>, <span class="hljs-string">&#x27;bg&#x27;</span>);                    <span class="hljs-comment">// Kép (nem mozog)</span>
+    <span class="hljs-keyword">let</span> sprite = <span class="hljs-variable language_">this</span>.<span class="hljs-property">add</span>.<span class="hljs-title function_">sprite</span>(<span class="hljs-number">100</span>, <span class="hljs-number">100</span>, <span class="hljs-string">&#x27;player&#x27;</span>);  <span class="hljs-comment">// Sprite</span>
+
+    <span class="hljs-comment">// Fizikai sprite (ütközhet, mozoghat)</span>
+    <span class="hljs-keyword">let</span> fizikaiSprite = <span class="hljs-variable language_">this</span>.<span class="hljs-property">physics</span>.<span class="hljs-property">add</span>.<span class="hljs-title function_">sprite</span>(<span class="hljs-number">200</span>, <span class="hljs-number">200</span>, <span class="hljs-string">&#x27;enemy&#x27;</span>);
+    fizikaiSprite.<span class="hljs-title function_">setCollideWorldBounds</span>(<span class="hljs-literal">true</span>);         <span class="hljs-comment">// Ne menjen ki a képből</span>
+    fizikaiSprite.<span class="hljs-title function_">setBounce</span>(<span class="hljs-number">0.5</span>);                      <span class="hljs-comment">// Pattanás</span>
+    fizikaiSprite.<span class="hljs-title function_">setVelocity</span>(<span class="hljs-number">100</span>, <span class="hljs-number">200</span>);               <span class="hljs-comment">// Sebesség</span>
+    fizikaiSprite.<span class="hljs-title function_">setScale</span>(<span class="hljs-number">2</span>);                         <span class="hljs-comment">// Dupla méret</span>
+    fizikaiSprite.<span class="hljs-title function_">setAlpha</span>(<span class="hljs-number">0.5</span>);                       <span class="hljs-comment">// 50% átlátszó</span>
+    fizikaiSprite.<span class="hljs-title function_">setTint</span>(<span class="hljs-number">0xff0000</span>);                   <span class="hljs-comment">// Piros színezés</span>
+    fizikaiSprite.<span class="hljs-title function_">setDepth</span>(<span class="hljs-number">10</span>);                        <span class="hljs-comment">// Z-index (réteg)</span>
+
+    <span class="hljs-comment">// ----- CSOPORTOK -----</span>
+    <span class="hljs-keyword">let</span> csoport = <span class="hljs-variable language_">this</span>.<span class="hljs-property">physics</span>.<span class="hljs-property">add</span>.<span class="hljs-title function_">group</span>({
+        <span class="hljs-attr">defaultKey</span>: <span class="hljs-string">&#x27;enemy&#x27;</span>,
+        <span class="hljs-attr">maxSize</span>: <span class="hljs-number">50</span>,
+        <span class="hljs-attr">collideWorldBounds</span>: <span class="hljs-literal">true</span>
+    });
+
+    <span class="hljs-comment">// Elemek hozzáadása</span>
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10</span>; i++) {
+        <span class="hljs-keyword">let</span> elem = csoport.<span class="hljs-title function_">create</span>(i * <span class="hljs-number">50</span>, <span class="hljs-number">100</span>, <span class="hljs-string">&#x27;enemy&#x27;</span>);
+    }
+
+    <span class="hljs-comment">// ----- SZÖVEG -----</span>
+    <span class="hljs-keyword">let</span> szoveg = <span class="hljs-variable language_">this</span>.<span class="hljs-property">add</span>.<span class="hljs-title function_">text</span>(<span class="hljs-number">16</span>, <span class="hljs-number">16</span>, <span class="hljs-string">&#x27;Pont: 0&#x27;</span>, {
+        <span class="hljs-attr">fontSize</span>: <span class="hljs-string">&#x27;32px&#x27;</span>,
+        <span class="hljs-attr">fill</span>: <span class="hljs-string">&#x27;#ffffff&#x27;</span>,
+        <span class="hljs-attr">fontFamily</span>: <span class="hljs-string">&#x27;Arial&#x27;</span>,
+        <span class="hljs-attr">backgroundColor</span>: <span class="hljs-string">&#x27;#000000&#x27;</span>,
+        <span class="hljs-attr">padding</span>: { <span class="hljs-attr">x</span>: <span class="hljs-number">10</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">5</span> },
+        <span class="hljs-attr">align</span>: <span class="hljs-string">&#x27;center&#x27;</span>
+    });
+    szoveg.<span class="hljs-title function_">setOrigin</span>(<span class="hljs-number">0.5</span>);                             <span class="hljs-comment">// Középre igazítás</span>
+    szoveg.<span class="hljs-title function_">setShadow</span>(<span class="hljs-number">2</span>, <span class="hljs-number">2</span>, <span class="hljs-string">&#x27;#000000&#x27;</span>, <span class="hljs-number">2</span>);              <span class="hljs-comment">// Árnyék</span>
+
+    <span class="hljs-comment">// ----- ANIMÁCIÓ -----</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">anims</span>.<span class="hljs-title function_">create</span>({
+        <span class="hljs-attr">key</span>: <span class="hljs-string">&#x27;walk&#x27;</span>,
+        <span class="hljs-attr">frames</span>: <span class="hljs-variable language_">this</span>.<span class="hljs-property">anims</span>.<span class="hljs-title function_">generateFrameNumbers</span>(<span class="hljs-string">&#x27;player&#x27;</span>, {
+            <span class="hljs-attr">start</span>: <span class="hljs-number">0</span>,
+            <span class="hljs-attr">end</span>: <span class="hljs-number">3</span>
+        }),
+        <span class="hljs-attr">frameRate</span>: <span class="hljs-number">10</span>,
+        <span class="hljs-attr">repeat</span>: -<span class="hljs-number">1</span>                                     <span class="hljs-comment">// Végtelen ismétlés</span>
+    });
+    sprite.<span class="hljs-property">anims</span>.<span class="hljs-title function_">play</span>(<span class="hljs-string">&#x27;walk&#x27;</span>);
+
+    <span class="hljs-comment">// ----- BILLENTYŰZET -----</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">cursors</span> = <span class="hljs-variable language_">this</span>.<span class="hljs-property">input</span>.<span class="hljs-property">keyboard</span>.<span class="hljs-title function_">createCursorKeys</span>();
+
+    <span class="hljs-comment">// Egyedi billentyűk</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">spaceKey</span> = <span class="hljs-variable language_">this</span>.<span class="hljs-property">input</span>.<span class="hljs-property">keyboard</span>.<span class="hljs-title function_">addKey</span>(<span class="hljs-title class_">Phaser</span>.<span class="hljs-property">Input</span>.<span class="hljs-property">Keyboard</span>.<span class="hljs-property">KeyCodes</span>.<span class="hljs-property">SPACE</span>);
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">wKey</span> = <span class="hljs-variable language_">this</span>.<span class="hljs-property">input</span>.<span class="hljs-property">keyboard</span>.<span class="hljs-title function_">addKey</span>(<span class="hljs-string">&#x27;W&#x27;</span>);
+
+    <span class="hljs-comment">// Billentyű esemény</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">input</span>.<span class="hljs-property">keyboard</span>.<span class="hljs-title function_">on</span>(<span class="hljs-string">&#x27;keydown-SPACE&#x27;</span>, <span class="hljs-function">() =&gt;</span> {
+        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&#x27;SPACE megnyomva!&#x27;</span>);
+    });
+
+    <span class="hljs-comment">// ----- EGÉR / ÉRINTÉS -----</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">input</span>.<span class="hljs-title function_">on</span>(<span class="hljs-string">&#x27;pointerdown&#x27;</span>, <span class="hljs-function">(<span class="hljs-params">pointer</span>) =&gt;</span> {
+        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&#x27;Kattintás:&#x27;</span>, pointer.<span class="hljs-property">x</span>, pointer.<span class="hljs-property">y</span>);
+    });
+
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">input</span>.<span class="hljs-title function_">on</span>(<span class="hljs-string">&#x27;pointermove&#x27;</span>, <span class="hljs-function">(<span class="hljs-params">pointer</span>) =&gt;</span> {
+        sprite.<span class="hljs-property">x</span> = pointer.<span class="hljs-property">x</span>;
+        sprite.<span class="hljs-property">y</span> = pointer.<span class="hljs-property">y</span>;
+    });
+
+    <span class="hljs-comment">// ----- IDŐZÍTŐK -----</span>
+    <span class="hljs-comment">// Egyszeri esemény (3 mp múlva)</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">time</span>.<span class="hljs-title function_">delayedCall</span>(<span class="hljs-number">3000</span>, <span class="hljs-function">() =&gt;</span> {
+        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&#x27;3 másodperc eltelt!&#x27;</span>);
+    });
+
+    <span class="hljs-comment">// Ismétlődő esemény</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">time</span>.<span class="hljs-title function_">addEvent</span>({
+        <span class="hljs-attr">delay</span>: <span class="hljs-number">1000</span>,                                   <span class="hljs-comment">// 1 másodperc</span>
+        <span class="hljs-attr">callback</span>: <span class="hljs-function">() =&gt;</span> {
+            <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&#x27;Tick!&#x27;</span>);
+        },
+        <span class="hljs-attr">loop</span>: <span class="hljs-literal">true</span>
+    });
+
+    <span class="hljs-comment">// Timer objektum (megállítható)</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">timer</span> = <span class="hljs-variable language_">this</span>.<span class="hljs-property">time</span>.<span class="hljs-title function_">addEvent</span>({
+        <span class="hljs-attr">delay</span>: <span class="hljs-number">500</span>,
+        <span class="hljs-attr">callback</span>: <span class="hljs-variable language_">this</span>.<span class="hljs-property">enemyShoot</span>,
+        <span class="hljs-attr">callbackScope</span>: <span class="hljs-variable language_">this</span>,
+        <span class="hljs-attr">loop</span>: <span class="hljs-literal">true</span>
+    });
+    <span class="hljs-comment">// Megállítás: this.timer.remove();</span>
+
+    <span class="hljs-comment">// ----- ÜTKÖZÉSEK -----</span>
+    <span class="hljs-comment">// Overlap (átfedés, nem állítja meg az objektumokat)</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">physics</span>.<span class="hljs-property">add</span>.<span class="hljs-title function_">overlap</span>(player, coins, collectCoin, <span class="hljs-literal">null</span>, <span class="hljs-variable language_">this</span>);
+
+    <span class="hljs-comment">// Collider (valódi ütközés, megállítja az objektumokat)</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">physics</span>.<span class="hljs-property">add</span>.<span class="hljs-title function_">collider</span>(player, platforms);
+
+    <span class="hljs-comment">// Csoport vs csoport</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">physics</span>.<span class="hljs-property">add</span>.<span class="hljs-title function_">overlap</span>(bullets, enemies, hitEnemy, <span class="hljs-literal">null</span>, <span class="hljs-variable language_">this</span>);
+
+    <span class="hljs-comment">// ----- KAMERA -----</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">cameras</span>.<span class="hljs-property">main</span>.<span class="hljs-title function_">setBounds</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1600</span>, <span class="hljs-number">1200</span>);    <span class="hljs-comment">// Világ mérete</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">cameras</span>.<span class="hljs-property">main</span>.<span class="hljs-title function_">startFollow</span>(player);             <span class="hljs-comment">// Követ egy sprite-ot</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">cameras</span>.<span class="hljs-property">main</span>.<span class="hljs-title function_">setZoom</span>(<span class="hljs-number">1.5</span>);                    <span class="hljs-comment">// Zoom</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">cameras</span>.<span class="hljs-property">main</span>.<span class="hljs-title function_">shake</span>(<span class="hljs-number">200</span>, <span class="hljs-number">0.01</span>);                <span class="hljs-comment">// Rázkódás effekt</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">cameras</span>.<span class="hljs-property">main</span>.<span class="hljs-title function_">flash</span>(<span class="hljs-number">250</span>);                      <span class="hljs-comment">// Villanás</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">cameras</span>.<span class="hljs-property">main</span>.<span class="hljs-title function_">fade</span>(<span class="hljs-number">1000</span>);                      <span class="hljs-comment">// Kifakulás</span>
+
+    <span class="hljs-comment">// ----- HANGOK -----</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">sound</span>.<span class="hljs-title function_">play</span>(<span class="hljs-string">&#x27;sfx&#x27;</span>);                            <span class="hljs-comment">// Egyszeri hang</span>
+
+    <span class="hljs-keyword">let</span> music = <span class="hljs-variable language_">this</span>.<span class="hljs-property">sound</span>.<span class="hljs-title function_">add</span>(<span class="hljs-string">&#x27;music&#x27;</span>, {
+        <span class="hljs-attr">loop</span>: <span class="hljs-literal">true</span>,
+        <span class="hljs-attr">volume</span>: <span class="hljs-number">0.5</span>
+    });
+    music.<span class="hljs-title function_">play</span>();
+    <span class="hljs-comment">// music.pause();</span>
+    <span class="hljs-comment">// music.resume();</span>
+    <span class="hljs-comment">// music.stop();</span>
+
+    <span class="hljs-comment">// ----- TWEENS (ANIMÁCIÓK) -----</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">tweens</span>.<span class="hljs-title function_">add</span>({
+        <span class="hljs-attr">targets</span>: sprite,
+        <span class="hljs-attr">x</span>: <span class="hljs-number">700</span>,                                        <span class="hljs-comment">// Célpozíció</span>
+        <span class="hljs-attr">duration</span>: <span class="hljs-number">2000</span>,                                <span class="hljs-comment">// 2 másodperc</span>
+        <span class="hljs-attr">ease</span>: <span class="hljs-string">&#x27;Power2&#x27;</span>,                                <span class="hljs-comment">// Easing</span>
+        <span class="hljs-attr">yoyo</span>: <span class="hljs-literal">true</span>,                                    <span class="hljs-comment">// Vissza is megy</span>
+        <span class="hljs-attr">repeat</span>: -<span class="hljs-number">1</span>                                     <span class="hljs-comment">// Végtelen</span>
+    });
+
+    <span class="hljs-comment">// Több property egyszerre</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">tweens</span>.<span class="hljs-title function_">add</span>({
+        <span class="hljs-attr">targets</span>: sprite,
+        <span class="hljs-attr">alpha</span>: <span class="hljs-number">0</span>,
+        <span class="hljs-attr">scale</span>: <span class="hljs-number">2</span>,
+        <span class="hljs-attr">angle</span>: <span class="hljs-number">360</span>,
+        <span class="hljs-attr">duration</span>: <span class="hljs-number">1000</span>
+    });
+
+    <span class="hljs-comment">// ----- PARTICLE EFFEKTEK -----</span>
+    <span class="hljs-keyword">let</span> particles = <span class="hljs-variable language_">this</span>.<span class="hljs-property">add</span>.<span class="hljs-title function_">particles</span>(<span class="hljs-string">&#x27;particle&#x27;</span>);
+
+    <span class="hljs-keyword">let</span> emitter = particles.<span class="hljs-title function_">createEmitter</span>({
+        <span class="hljs-attr">x</span>: <span class="hljs-number">400</span>,
+        <span class="hljs-attr">y</span>: <span class="hljs-number">300</span>,
+        <span class="hljs-attr">speed</span>: { <span class="hljs-attr">min</span>: <span class="hljs-number">100</span>, <span class="hljs-attr">max</span>: <span class="hljs-number">300</span> },
+        <span class="hljs-attr">angle</span>: { <span class="hljs-attr">min</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">max</span>: <span class="hljs-number">360</span> },
+        <span class="hljs-attr">scale</span>: { <span class="hljs-attr">start</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">end</span>: <span class="hljs-number">0</span> },
+        <span class="hljs-attr">lifespan</span>: <span class="hljs-number">1000</span>,
+        <span class="hljs-attr">quantity</span>: <span class="hljs-number">2</span>,
+        <span class="hljs-attr">blendMode</span>: <span class="hljs-string">&#x27;ADD&#x27;</span>
+    });
+
+    <span class="hljs-comment">// Sprite-hoz csatolás</span>
+    emitter.<span class="hljs-title function_">startFollow</span>(player);
+}
+
+<span class="hljs-comment">// ===== UPDATE - Minden frame =====</span>
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">update</span>(<span class="hljs-params">time, delta</span>) {
+    <span class="hljs-comment">// time = játék kezdete óta eltelt idő (ms)</span>
+    <span class="hljs-comment">// delta = előző frame óta eltelt idő (ms)</span>
+
+    <span class="hljs-comment">// Billentyűzet kezelés</span>
+    <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">cursors</span>.<span class="hljs-property">left</span>.<span class="hljs-property">isDown</span>) {
+        player.<span class="hljs-title function_">setVelocityX</span>(-<span class="hljs-number">200</span>);
+    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">cursors</span>.<span class="hljs-property">right</span>.<span class="hljs-property">isDown</span>) {
+        player.<span class="hljs-title function_">setVelocityX</span>(<span class="hljs-number">200</span>);
+    } <span class="hljs-keyword">else</span> {
+        player.<span class="hljs-title function_">setVelocityX</span>(<span class="hljs-number">0</span>);
+    }
+
+    <span class="hljs-comment">// Ugrás</span>
+    <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">cursors</span>.<span class="hljs-property">up</span>.<span class="hljs-property">isDown</span> &amp;&amp; player.<span class="hljs-property">body</span>.<span class="hljs-property">touching</span>.<span class="hljs-property">down</span>) {
+        player.<span class="hljs-title function_">setVelocityY</span>(-<span class="hljs-number">400</span>);
+    }
+
+    <span class="hljs-comment">// Sprite körbeforgatása</span>
+    player.<span class="hljs-property">angle</span> += <span class="hljs-number">1</span>;
+
+    <span class="hljs-comment">// Távolság ellenőrzés</span>
+    <span class="hljs-keyword">let</span> dist = <span class="hljs-title class_">Phaser</span>.<span class="hljs-property">Math</span>.<span class="hljs-property">Distance</span>.<span class="hljs-title class_">Between</span>(
+        player.<span class="hljs-property">x</span>, player.<span class="hljs-property">y</span>,
+        enemy.<span class="hljs-property">x</span>, enemy.<span class="hljs-property">y</span>
+    );
+    <span class="hljs-keyword">if</span> (dist &lt; <span class="hljs-number">50</span>) {
+        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&#x27;Közel van!&#x27;</span>);
+    }
+}
+
+<span class="hljs-comment">// ===== HASZNOS CALLBACK FÜGGVÉNYEK =====</span>
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">collectCoin</span>(<span class="hljs-params">player, coin</span>) {
+    coin.<span class="hljs-title function_">destroy</span>();                                    <span class="hljs-comment">// Coin eltűnik</span>
+    score += <span class="hljs-number">10</span>;
+    scoreText.<span class="hljs-title function_">setText</span>(<span class="hljs-string">&#x27;Pont: &#x27;</span> + score);
+}
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">hitEnemy</span>(<span class="hljs-params">bullet, enemy</span>) {
+    bullet.<span class="hljs-title function_">destroy</span>();
+    enemy.<span class="hljs-title function_">destroy</span>();
+
+    <span class="hljs-comment">// Robbanás effekt</span>
+    <span class="hljs-keyword">let</span> explosion = <span class="hljs-variable language_">this</span>.<span class="hljs-property">add</span>.<span class="hljs-title function_">sprite</span>(enemy.<span class="hljs-property">x</span>, enemy.<span class="hljs-property">y</span>, <span class="hljs-string">&#x27;explosion&#x27;</span>);
+    explosion.<span class="hljs-property">anims</span>.<span class="hljs-title function_">play</span>(<span class="hljs-string">&#x27;explode&#x27;</span>);
+    explosion.<span class="hljs-title function_">on</span>(<span class="hljs-string">&#x27;animationcomplete&#x27;</span>, <span class="hljs-function">() =&gt;</span> {
+        explosion.<span class="hljs-title function_">destroy</span>();
+    });
+}
+</code></pre>
+<hr>
+<h3 id="gyakran-használt-math-függvények-játékokhoz">Gyakran használt Math függvények játékokhoz</h3>
+<pre><code class="language-javascript"><span class="hljs-comment">// ===== VÉLETLEN SZÁMOK =====</span>
+<span class="hljs-comment">// Véletlen 0 és 1 között</span>
+<span class="hljs-title class_">Math</span>.<span class="hljs-title function_">random</span>();                                         <span class="hljs-comment">// pl. 0.634</span>
+
+<span class="hljs-comment">// Véletlen egész szám min és max között (inclusiv)</span>
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">randomInt</span>(<span class="hljs-params">min, max</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">floor</span>(<span class="hljs-title class_">Math</span>.<span class="hljs-title function_">random</span>() * (max - min + <span class="hljs-number">1</span>)) + min;
+}
+<span class="hljs-title function_">randomInt</span>(<span class="hljs-number">1</span>, <span class="hljs-number">10</span>);                                      <span class="hljs-comment">// pl. 7</span>
+
+<span class="hljs-comment">// Phaser beépített</span>
+<span class="hljs-title class_">Phaser</span>.<span class="hljs-property">Math</span>.<span class="hljs-title class_">Between</span>(<span class="hljs-number">1</span>, <span class="hljs-number">10</span>);                            <span class="hljs-comment">// 1-10 között</span>
+<span class="hljs-title class_">Phaser</span>.<span class="hljs-property">Math</span>.<span class="hljs-title class_">FloatBetween</span>(<span class="hljs-number">1.5</span>, <span class="hljs-number">5.5</span>);                    <span class="hljs-comment">// Tört is lehet</span>
+
+<span class="hljs-comment">// Véletlen elem tömbből</span>
+<span class="hljs-keyword">let</span> colors = [<span class="hljs-string">&#x27;red&#x27;</span>, <span class="hljs-string">&#x27;blue&#x27;</span>, <span class="hljs-string">&#x27;green&#x27;</span>];
+<span class="hljs-title class_">Phaser</span>.<span class="hljs-property">Utils</span>.<span class="hljs-property">Array</span>.<span class="hljs-title class_">GetRandom</span>(colors);                  <span class="hljs-comment">// pl. &#x27;blue&#x27;</span>
+
+<span class="hljs-comment">// ===== TÁVOLSÁG ÉS SZÖG =====</span>
+<span class="hljs-comment">// Távolság két pont között (Pitagorasz)</span>
+<span class="hljs-keyword">let</span> dist = <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">sqrt</span>(
+    <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">pow</span>(x2 - x1, <span class="hljs-number">2</span>) + <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">pow</span>(y2 - y1, <span class="hljs-number">2</span>)
+);
+
+<span class="hljs-comment">// Phaser beépített</span>
+<span class="hljs-title class_">Phaser</span>.<span class="hljs-property">Math</span>.<span class="hljs-property">Distance</span>.<span class="hljs-title class_">Between</span>(x1, y1, x2, y2);
+
+<span class="hljs-comment">// Szög két pont között (radiánban)</span>
+<span class="hljs-keyword">let</span> angle = <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">atan2</span>(y2 - y1, x2 - x1);
+
+<span class="hljs-comment">// Phaser beépített (radiánban)</span>
+<span class="hljs-title class_">Phaser</span>.<span class="hljs-property">Math</span>.<span class="hljs-property">Angle</span>.<span class="hljs-title class_">Between</span>(x1, y1, x2, y2);
+
+<span class="hljs-comment">// Radián &lt;-&gt; Fok átváltás</span>
+<span class="hljs-keyword">let</span> radianToFok = radián * (<span class="hljs-number">180</span> / <span class="hljs-title class_">Math</span>.<span class="hljs-property">PI</span>);
+<span class="hljs-keyword">let</span> fokToRadian = fok * (<span class="hljs-title class_">Math</span>.<span class="hljs-property">PI</span> / <span class="hljs-number">180</span>);
+
+<span class="hljs-comment">// Phaser beépített</span>
+<span class="hljs-title class_">Phaser</span>.<span class="hljs-property">Math</span>.<span class="hljs-title class_">RadToDeg</span>(radián);
+<span class="hljs-title class_">Phaser</span>.<span class="hljs-property">Math</span>.<span class="hljs-title class_">DegToRad</span>(fok);
+
+<span class="hljs-comment">// ===== INTERPOLÁCIÓ (LERP) =====</span>
+<span class="hljs-comment">// Két érték között simán átmegy</span>
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">lerp</span>(<span class="hljs-params">start, end, t</span>) {
+    <span class="hljs-keyword">return</span> start + (end - start) * t;
+}
+<span class="hljs-comment">// t = 0 → start</span>
+<span class="hljs-comment">// t = 0.5 → középen</span>
+<span class="hljs-comment">// t = 1 → end</span>
+
+<span class="hljs-comment">// Phaser beépített</span>
+<span class="hljs-title class_">Phaser</span>.<span class="hljs-property">Math</span>.<span class="hljs-title class_">Linear</span>(start, end, t);
+
+<span class="hljs-comment">// ===== CLAMP (KORLÁTOZÁS) =====</span>
+<span class="hljs-comment">// Érték korlátok közé szorítása</span>
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">clamp</span>(<span class="hljs-params">value, min, max</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">max</span>(min, <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">min</span>(max, value));
+}
+<span class="hljs-title function_">clamp</span>(<span class="hljs-number">150</span>, <span class="hljs-number">0</span>, <span class="hljs-number">100</span>);                                    <span class="hljs-comment">// 100</span>
+
+<span class="hljs-comment">// Phaser beépített</span>
+<span class="hljs-title class_">Phaser</span>.<span class="hljs-property">Math</span>.<span class="hljs-title class_">Clamp</span>(value, min, max);
+
+<span class="hljs-comment">// ===== KEREKÍTÉS =====</span>
+<span class="hljs-title class_">Math</span>.<span class="hljs-title function_">floor</span>(<span class="hljs-number">4.7</span>);                                       <span class="hljs-comment">// 4 (lefelé)</span>
+<span class="hljs-title class_">Math</span>.<span class="hljs-title function_">ceil</span>(<span class="hljs-number">4.3</span>);                                        <span class="hljs-comment">// 5 (felfelé)</span>
+<span class="hljs-title class_">Math</span>.<span class="hljs-title function_">round</span>(<span class="hljs-number">4.5</span>);                                       <span class="hljs-comment">// 5 (közelebb)</span>
+(<span class="hljs-number">4.567</span>).<span class="hljs-title function_">toFixed</span>(<span class="hljs-number">2</span>);                                    <span class="hljs-comment">// &quot;4.57&quot; (2 tizedesjegy)</span>
+
+<span class="hljs-comment">// ===== NORMALIZÁLÁS =====</span>
+<span class="hljs-comment">// Vektor normalizálása (hossz = 1)</span>
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">normalize</span>(<span class="hljs-params">x, y</span>) {
+    <span class="hljs-keyword">let</span> length = <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">sqrt</span>(x * x + y * y);
+    <span class="hljs-keyword">return</span> {
+        <span class="hljs-attr">x</span>: x / length,
+        <span class="hljs-attr">y</span>: y / length
+    };
+}
+</code></pre>
+<hr>
+<h3 id="design-pattern-ek-játékokhoz">Design Pattern-ek játékokhoz</h3>
+<pre><code class="language-javascript"><span class="hljs-comment">// ===== OBJECT POOL (újrahasznosítás) =====</span>
+<span class="hljs-comment">// Jobb performancia, kevesebb szemétgyűjtés</span>
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">create</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">bulletPool</span> = <span class="hljs-variable language_">this</span>.<span class="hljs-property">physics</span>.<span class="hljs-property">add</span>.<span class="hljs-title function_">group</span>({
+        <span class="hljs-attr">defaultKey</span>: <span class="hljs-string">&#x27;bullet&#x27;</span>,
+        <span class="hljs-attr">maxSize</span>: <span class="hljs-number">50</span>,
+        <span class="hljs-attr">runChildUpdate</span>: <span class="hljs-literal">true</span>
+    });
+}
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">fireBullet</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-keyword">let</span> bullet = <span class="hljs-variable language_">this</span>.<span class="hljs-property">bulletPool</span>.<span class="hljs-title function_">get</span>(player.<span class="hljs-property">x</span>, player.<span class="hljs-property">y</span>);
+    <span class="hljs-keyword">if</span> (bullet) {
+        bullet.<span class="hljs-title function_">setActive</span>(<span class="hljs-literal">true</span>);
+        bullet.<span class="hljs-title function_">setVisible</span>(<span class="hljs-literal">true</span>);
+        bullet.<span class="hljs-title function_">setVelocityY</span>(-<span class="hljs-number">400</span>);
+    }
+}
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">update</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">bulletPool</span>.<span class="hljs-property">children</span>.<span class="hljs-property">entries</span>.<span class="hljs-title function_">forEach</span>(<span class="hljs-function"><span class="hljs-params">bullet</span> =&gt;</span> {
+        <span class="hljs-keyword">if</span> (bullet.<span class="hljs-property">y</span> &lt; <span class="hljs-number">0</span>) {
+            bullet.<span class="hljs-title function_">setActive</span>(<span class="hljs-literal">false</span>);
+            bullet.<span class="hljs-title function_">setVisible</span>(<span class="hljs-literal">false</span>);
+        }
+    });
+}
+
+<span class="hljs-comment">// ===== STATE MACHINE (állapotgép) =====</span>
+<span class="hljs-keyword">let</span> enemyState = {
+    <span class="hljs-attr">IDLE</span>: <span class="hljs-string">&#x27;idle&#x27;</span>,
+    <span class="hljs-attr">PATROL</span>: <span class="hljs-string">&#x27;patrol&#x27;</span>,
+    <span class="hljs-attr">CHASE</span>: <span class="hljs-string">&#x27;chase&#x27;</span>,
+    <span class="hljs-attr">ATTACK</span>: <span class="hljs-string">&#x27;attack&#x27;</span>
+};
+
+<span class="hljs-keyword">let</span> currentState = enemyState.<span class="hljs-property">IDLE</span>;
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">updateEnemy</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-keyword">switch</span>(currentState) {
+        <span class="hljs-keyword">case</span> enemyState.<span class="hljs-property">IDLE</span>:
+            <span class="hljs-comment">// Áll</span>
+            <span class="hljs-keyword">if</span> (playerNear) currentState = enemyState.<span class="hljs-property">CHASE</span>;
+            <span class="hljs-keyword">break</span>;
+        <span class="hljs-keyword">case</span> enemyState.<span class="hljs-property">CHASE</span>:
+            <span class="hljs-comment">// Üldöz</span>
+            <span class="hljs-title function_">moveTowardsPlayer</span>();
+            <span class="hljs-keyword">if</span> (playerVeryClose) currentState = enemyState.<span class="hljs-property">ATTACK</span>;
+            <span class="hljs-keyword">if</span> (!playerNear) currentState = enemyState.<span class="hljs-property">IDLE</span>;
+            <span class="hljs-keyword">break</span>;
+        <span class="hljs-keyword">case</span> enemyState.<span class="hljs-property">ATTACK</span>:
+            <span class="hljs-comment">// Támad</span>
+            <span class="hljs-title function_">attackPlayer</span>();
+            <span class="hljs-keyword">if</span> (!playerVeryClose) currentState = enemyState.<span class="hljs-property">CHASE</span>;
+            <span class="hljs-keyword">break</span>;
+    }
+}
+
+<span class="hljs-comment">// ===== EVENT EMITTER (eseménykezelés) =====</span>
+<span class="hljs-comment">// Globális eseménykezelő</span>
+<span class="hljs-keyword">const</span> <span class="hljs-title class_">GameEvents</span> = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Phaser</span>.<span class="hljs-property">Events</span>.<span class="hljs-title class_">EventEmitter</span>();
+
+<span class="hljs-comment">// Feliratkozás eseményre</span>
+<span class="hljs-title class_">GameEvents</span>.<span class="hljs-title function_">on</span>(<span class="hljs-string">&#x27;enemyKilled&#x27;</span>, <span class="hljs-function">(<span class="hljs-params">points</span>) =&gt;</span> {
+    score += points;
+    <span class="hljs-title function_">updateScore</span>();
+});
+
+<span class="hljs-comment">// Esemény kiváltása</span>
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">killEnemy</span>(<span class="hljs-params"></span>) {
+    enemy.<span class="hljs-title function_">destroy</span>();
+    <span class="hljs-title class_">GameEvents</span>.<span class="hljs-title function_">emit</span>(<span class="hljs-string">&#x27;enemyKilled&#x27;</span>, <span class="hljs-number">100</span>);
+}
+
+<span class="hljs-comment">// ===== SINGLETON (egyetlen példány) =====</span>
+<span class="hljs-keyword">let</span> <span class="hljs-title class_">GameManager</span> = {
+    <span class="hljs-attr">score</span>: <span class="hljs-number">0</span>,
+    <span class="hljs-attr">lives</span>: <span class="hljs-number">3</span>,
+    <span class="hljs-attr">level</span>: <span class="hljs-number">1</span>,
+
+    <span class="hljs-title function_">addScore</span>(<span class="hljs-params">points</span>) {
+        <span class="hljs-variable language_">this</span>.<span class="hljs-property">score</span> += points;
+    },
+
+    <span class="hljs-title function_">loseLife</span>(<span class="hljs-params"></span>) {
+        <span class="hljs-variable language_">this</span>.<span class="hljs-property">lives</span>--;
+        <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">lives</span> &lt;= <span class="hljs-number">0</span>) {
+            <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">gameOver</span>();
+        }
+    },
+
+    <span class="hljs-title function_">nextLevel</span>(<span class="hljs-params"></span>) {
+        <span class="hljs-variable language_">this</span>.<span class="hljs-property">level</span>++;
+    },
+
+    <span class="hljs-title function_">gameOver</span>(<span class="hljs-params"></span>) {
+        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&#x27;Game Over! Score:&#x27;</span>, <span class="hljs-variable language_">this</span>.<span class="hljs-property">score</span>);
+    }
+};
+</code></pre>
+<hr>
+<h3 id="optimalizálási-tippek">Optimalizálási tippek</h3>
+<pre><code class="language-javascript"><span class="hljs-comment">// ===== OFFSCREEN CULLING (nem látható törlése) =====</span>
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">update</span>(<span class="hljs-params"></span>) {
+    enemies.<span class="hljs-property">children</span>.<span class="hljs-property">entries</span>.<span class="hljs-title function_">forEach</span>(<span class="hljs-function"><span class="hljs-params">enemy</span> =&gt;</span> {
+        <span class="hljs-keyword">if</span> (enemy.<span class="hljs-property">y</span> &gt; <span class="hljs-number">700</span> || enemy.<span class="hljs-property">y</span> &lt; -<span class="hljs-number">100</span> ||
+            enemy.<span class="hljs-property">x</span> &gt; <span class="hljs-number">900</span> || enemy.<span class="hljs-property">x</span> &lt; -<span class="hljs-number">100</span>) {
+            enemy.<span class="hljs-title function_">destroy</span>();
+        }
+    });
+}
+
+<span class="hljs-comment">// ===== FPS MONITOR =====</span>
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">create</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">fpsText</span> = <span class="hljs-variable language_">this</span>.<span class="hljs-property">add</span>.<span class="hljs-title function_">text</span>(<span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-string">&#x27;&#x27;</span>, { <span class="hljs-attr">fill</span>: <span class="hljs-string">&#x27;#0f0&#x27;</span> });
+}
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">update</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-keyword">let</span> fps = <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">round</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">game</span>.<span class="hljs-property">loop</span>.<span class="hljs-property">actualFps</span>);
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">fpsText</span>.<span class="hljs-title function_">setText</span>(<span class="hljs-string">&#x27;FPS: &#x27;</span> + fps);
+}
+
+<span class="hljs-comment">// ===== TEXTURE ATLAS (sprite sheet optimalizálás) =====</span>
+<span class="hljs-comment">// Preload-ban</span>
+<span class="hljs-variable language_">this</span>.<span class="hljs-property">load</span>.<span class="hljs-title function_">atlas</span>(<span class="hljs-string">&#x27;sprites&#x27;</span>, <span class="hljs-string">&#x27;sprites.png&#x27;</span>, <span class="hljs-string">&#x27;sprites.json&#x27;</span>);
+
+<span class="hljs-comment">// Create-ben</span>
+<span class="hljs-variable language_">this</span>.<span class="hljs-property">add</span>.<span class="hljs-title function_">image</span>(<span class="hljs-number">100</span>, <span class="hljs-number">100</span>, <span class="hljs-string">&#x27;sprites&#x27;</span>, <span class="hljs-string">&#x27;player.png&#x27;</span>);
+
+<span class="hljs-comment">// ===== OBJECT REUSE (ne hozz létre újat mindig) =====</span>
+<span class="hljs-comment">// ROSSZ</span>
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">shoot</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-keyword">let</span> bullet = <span class="hljs-variable language_">this</span>.<span class="hljs-property">physics</span>.<span class="hljs-property">add</span>.<span class="hljs-title function_">sprite</span>(x, y, <span class="hljs-string">&#x27;bullet&#x27;</span>);
+}
+
+<span class="hljs-comment">// JÓ</span>
+<span class="hljs-keyword">let</span> bulletPool = [];
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">shoot</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-keyword">let</span> bullet = bulletPool.<span class="hljs-title function_">find</span>(<span class="hljs-function"><span class="hljs-params">b</span> =&gt;</span> !b.<span class="hljs-property">active</span>);
+    <span class="hljs-keyword">if</span> (bullet) {
+        bullet.<span class="hljs-title function_">setPosition</span>(x, y);
+        bullet.<span class="hljs-title function_">setActive</span>(<span class="hljs-literal">true</span>);
+    }
+}
+</code></pre>
+<hr>
+<h3 id="debug-tippek">Debug tippek</h3>
+<pre><code class="language-javascript"><span class="hljs-comment">// ===== CONSOLE LOGGING =====</span>
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&#x27;Érték:&#x27;</span>, valtozo);
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">warn</span>(<span class="hljs-string">&#x27;Figyelmeztetés!&#x27;</span>);
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">&#x27;Hiba történt!&#x27;</span>);
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">table</span>({ <span class="hljs-attr">x</span>: <span class="hljs-number">10</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">20</span>, <span class="hljs-attr">z</span>: <span class="hljs-number">30</span> });               <span class="hljs-comment">// Táblázat</span>
+
+<span class="hljs-comment">// ===== ASSERT =====</span>
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">assert</span>(x &gt; <span class="hljs-number">0</span>, <span class="hljs-string">&#x27;X-nek pozitívnak kell lennie!&#x27;</span>);
+
+<span class="hljs-comment">// ===== PHASER DEBUG =====</span>
+<span class="hljs-comment">// Config-ban</span>
+<span class="hljs-attr">physics</span>: {
+    <span class="hljs-attr">arcade</span>: {
+        <span class="hljs-attr">debug</span>: <span class="hljs-literal">true</span>                                     <span class="hljs-comment">// Fizikai testek láthatóak</span>
+    }
+}
+
+<span class="hljs-comment">// Debug szöveg</span>
+<span class="hljs-variable language_">this</span>.<span class="hljs-property">add</span>.<span class="hljs-title function_">text</span>(<span class="hljs-number">10</span>, <span class="hljs-number">50</span>, <span class="hljs-string">&#x27;&#x27;</span>, { <span class="hljs-attr">fill</span>: <span class="hljs-string">&#x27;#0f0&#x27;</span> })
+    .<span class="hljs-title function_">setScrollFactor</span>(<span class="hljs-number">0</span>)                                <span class="hljs-comment">// Fix pozíció (kamera mozog)</span>
+    .<span class="hljs-title function_">setDepth</span>(<span class="hljs-number">1000</span>);                                   <span class="hljs-comment">// Mindig felül</span>
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">update</span>(<span class="hljs-params"></span>) {
+    debugText.<span class="hljs-title function_">setText</span>([
+        <span class="hljs-string">&#x27;Player X: &#x27;</span> + player.<span class="hljs-property">x</span>,
+        <span class="hljs-string">&#x27;Player Y: &#x27;</span> + player.<span class="hljs-property">y</span>,
+        <span class="hljs-string">&#x27;Velocity: &#x27;</span> + player.<span class="hljs-property">body</span>.<span class="hljs-property">velocity</span>.<span class="hljs-property">x</span>,
+        <span class="hljs-string">&#x27;FPS: &#x27;</span> + <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">round</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">game</span>.<span class="hljs-property">loop</span>.<span class="hljs-property">actualFps</span>)
+    ]);
+}
+
+<span class="hljs-comment">// ===== BREAKPOINT (böngésző DevTools) =====</span>
+<span class="hljs-keyword">debugger</span>;                                              <span class="hljs-comment">// Megállítja a kódot itt</span>
+</code></pre>
+<hr>
+<h2 id="-záró-gondolatok">🏆 ZÁRÓ GONDOLATOK</h2>
+<h3 id="utolsó-ellenőrző-lista-leadás-előtt">Utolsó ellenőrző lista leadás előtt:</h3>
+<pre><code>☐ Játék elindul hiba nélkül
+☐ Legalább 3 perc játékidő
+☐ Game Over működik
+☐ Újraindítás működik
+☐ README.md kitöltve
+☐ Nincs console.error
+☐ 60 FPS
+☐ 3 emberrel tesztelve
+☐ GitHub repo rendezett
+☐ Prezentáció begyakorolva
+</code></pre>
+<p><strong>🚀 HAJRÁ! JÓ VERSENYZÉST! 🏆</strong></p>
+
+            <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+            
+        </body>
+        </html>
